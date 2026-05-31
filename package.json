@@ -1,10 +1,10 @@
 {
-  "name": "agent-debug-browser",
+  "name": "intent-browser",
   "version": "0.1.0",
-  "description": "A dedicated Electron browser for agent-generated page debugging, quick editing, annotations, and diff payload capture.",
+  "description": "A dedicated Electron browser for intent-aware page debugging, quick editing, annotations, and diff payload capture.",
   "main": "src/main/main.js",
   "bin": {
-    "agent-debug-browser": "bin/agent-debug-browser.js"
+    "intent-browser": "bin/intent-browser.js"
   },
   "scripts": {
     "start": "electron .",

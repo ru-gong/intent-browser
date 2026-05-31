@@ -1,8 +1,8 @@
-# Agent Debug Browser
+# 灵犀页镜
 
 [English README](./README.md)
 
-Agent Debug Browser 是一款专门用于 Agent 生成页面调试、编辑和批注的 Electron 浏览器。它不从零开发排版引擎，而是复用 Chromium；目标页面通过隔离 preload 注入运行时能力，遮罩层使用封闭 Shadow DOM 渲染，并把用户的编辑、拖拽、批注等操作转换成 Agent 可直接读取的结构化 Diff Payload。
+灵犀页镜是一款专门用于 Agent 生成页面调试、编辑和批注的 Electron 浏览器。它不从零开发排版引擎，而是复用 Chromium；目标页面通过隔离 preload 注入运行时能力，遮罩层使用封闭 Shadow DOM 渲染，并把用户的编辑、拖拽、批注等操作转换成 Agent 可直接读取的结构化 Diff Payload。
 
 它解决的核心问题很明确：当人类在页面上指出“这里要改”时，Agent 不应该猜“这里”在哪里，而应该立刻拿到目标元素、用户动作、变更内容和空间坐标。
 
@@ -34,25 +34,25 @@ npm install
 打开示例页面：
 
 ```bash
-node bin/agent-debug-browser.js samples/demo.html --port 17345 --out ./diffs.ndjson
+node bin/intent-browser.js samples/demo.html --port 17345 --out ./diffs.ndjson
 ```
 
 打开你自己的本地前端应用：
 
 ```bash
-node bin/agent-debug-browser.js http://localhost:3000 --port 17345 --out ./diffs.ndjson
+node bin/intent-browser.js http://localhost:3000 --port 17345 --out ./diffs.ndjson
 ```
 
 打开项目说明文档：
 
 ```bash
-node bin/agent-debug-browser.js docs/agent-debug-browser-guide.html --port 17345 --out ./diffs.ndjson
+node bin/intent-browser.js docs/intent-browser-guide.html --port 17345 --out ./diffs.ndjson
 ```
 
 Windows PowerShell 示例：
 
 ```powershell
-node .\bin\agent-debug-browser.js .\docs\agent-debug-browser-guide.html --port 17345 --out .\diffs.ndjson
+node .\bin\intent-browser.js .\docs\intent-browser-guide.html --port 17345 --out .\diffs.ndjson
 ```
 
 ## CLI 用法
@@ -60,28 +60,28 @@ node .\bin\agent-debug-browser.js .\docs\agent-debug-browser-guide.html --port 1
 查看全部命令：
 
 ```bash
-node bin/agent-debug-browser.js --help
+node bin/intent-browser.js --help
 ```
 
 读取用户交互：
 
 ```bash
-node bin/agent-debug-browser.js read --port 17345 --since 0
-node bin/agent-debug-browser.js read --port 17345 --format ndjson
+node bin/intent-browser.js read --port 17345 --since 0
+node bin/intent-browser.js read --port 17345 --format ndjson
 ```
 
 查看当前会话：
 
 ```bash
-node bin/agent-debug-browser.js snapshot --port 17345
+node bin/intent-browser.js snapshot --port 17345
 ```
 
 无刷新切换遮罩模式：
 
 ```bash
-node bin/agent-debug-browser.js mode preview --port 17345
-node bin/agent-debug-browser.js mode quick-edit --port 17345
-node bin/agent-debug-browser.js mode annotation --port 17345
+node bin/intent-browser.js mode preview --port 17345
+node bin/intent-browser.js mode quick-edit --port 17345
+node bin/intent-browser.js mode annotation --port 17345
 ```
 
 ## Agent 接口
@@ -163,7 +163,7 @@ node --check src/preload/target-preload.js
 运行交互 smoke test：
 
 ```bash
-node bin/agent-debug-browser.js docs/agent-debug-browser-guide.html --port 19274 --remote-debugging-port 19374
+node bin/intent-browser.js docs/intent-browser-guide.html --port 19274 --remote-debugging-port 19374
 npm run smoke:interactions -- --app-port 19274 --cdp-port 19374
 ```
 
@@ -179,7 +179,7 @@ npm run smoke:interactions -- --app-port 19274 --cdp-port 19374
 
 ## 项目结构
 
-- `bin/agent-debug-browser.js`：CLI 入口。
+- `bin/intent-browser.js`：CLI 入口。
 - `src/main/`：Electron 主进程、工作台布局、CLI 解析、会话总线、RPC 服务。
 - `src/preload/`：目标页面和浏览器外壳的隔离 preload。
 - `src/renderer/`：工具栏和 Payload 侧栏 UI。

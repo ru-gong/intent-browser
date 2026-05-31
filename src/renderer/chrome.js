@@ -5,6 +5,7 @@
   const app = document.getElementById('app');
   const events = [];
   const copy = languageCopy();
+  document.title = copy.chromeTitle;
   let state = null;
 
   const icons = {
@@ -31,7 +32,7 @@
     app.className = 'toolbar';
     app.innerHTML = `
       <div class="toolbar-left">
-        <div class="brand-block" title="Agent Debug Browser">
+        <div class="brand-block" title="${escapeAttribute(copy.appName)}">
           <div class="brand">${icons.brand}</div>
           <div class="brand-copy">
             <strong>${escapeHtml(copy.appName)}</strong>
@@ -178,7 +179,8 @@
   function languageCopy() {
     if (prefersChinese()) {
       return {
-        appName: 'Agent 调试浏览器',
+        chromeTitle: '灵犀页镜',
+        appName: '灵犀页镜',
         appCaption: '页面编辑与 Diff 采集',
         modesLabel: '遮罩模式',
         nav: {
@@ -235,7 +237,8 @@
       };
     }
     return {
-      appName: 'Agent Debug Browser',
+      chromeTitle: 'Intent Browser',
+      appName: 'Intent Browser',
       appCaption: 'Page editing and diff capture',
       modesLabel: 'Overlay modes',
       nav: {

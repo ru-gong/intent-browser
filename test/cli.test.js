@@ -25,11 +25,11 @@ test('drops electron app root before target file', () => {
   assert.equal(parsed.options.port, 19000);
 });
 
-test('keeps target files whose names contain agent-debug-browser', () => {
-  const parsed = parseCliArgs(['docs/agent-debug-browser-guide.html', '--port', '19274'], {
+test('keeps target files whose names contain intent-browser', () => {
+  const parsed = parseCliArgs(['docs/intent-browser-guide.html', '--port', '19274'], {
     cwd: '/tmp/project'
   });
-  assert.equal(parsed.options.url, 'file:///tmp/project/docs/agent-debug-browser-guide.html');
+  assert.equal(parsed.options.url, 'file:///tmp/project/docs/intent-browser-guide.html');
 });
 
 test('parses remote debugging port for smoke tests', () => {
@@ -53,7 +53,7 @@ test('rejects invalid mode', () => {
 
 test('help documents agent operations', () => {
   const help = buildHelp();
-  assert.match(help, /agent-debug-browser read/);
+  assert.match(help, /intent-browser read/);
   assert.match(help, /WS\s+\/rpc/);
   assert.match(help, /mode\.set/);
 });

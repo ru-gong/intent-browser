@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart LR
-  CLI["agent-debug-browser CLI"] --> Main["Electron main process"]
+  CLI["intent-browser CLI"] --> Main["Electron main process"]
   Main --> RPC["HTTP + WebSocket JSON-RPC"]
   Main --> Chrome["Toolbar / payload panel WebContentsView"]
   Main --> Target["Target page WebContentsView"]

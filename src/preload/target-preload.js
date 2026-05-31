@@ -51,8 +51,8 @@ const { ipcRenderer } = require('electron');
     if (host && document.documentElement.contains(host)) {
       return;
     }
-    host = document.createElement('agent-debug-browser-overlay');
-    host.setAttribute('data-agent-debug-browser', 'overlay');
+    host = document.createElement('intent-browser-overlay');
+    host.setAttribute('data-intent-browser', 'overlay');
     Object.assign(host.style, {
       position: 'fixed',
       inset: '0',
@@ -212,7 +212,7 @@ const { ipcRenderer } = require('electron');
       hidePopover();
     }
     state.mode = nextMode;
-    document.documentElement.setAttribute('data-agent-debug-browser-mode', nextMode);
+    document.documentElement.setAttribute('data-intent-browser-mode', nextMode);
     badge.style.display = nextMode === 'preview' ? 'none' : 'block';
     badge.textContent = nextMode === 'quick-edit'
       ? copy.badge.quickEdit
@@ -745,7 +745,7 @@ const { ipcRenderer } = require('electron');
         context: context || {}
       },
       provenance: {
-        client: 'agent-debug-browser',
+        client: 'intent-browser',
         runtime: 'electron-isolated-preload',
         overlayMode: state.mode
       }
@@ -840,7 +840,7 @@ const { ipcRenderer } = require('electron');
   function classSelectorFor(element) {
     const classes = Array.from(element.classList || [])
       .filter((name) => /^[A-Za-z_-][A-Za-z0-9_-]*$/.test(name))
-      .filter((name) => !name.startsWith('agent-debug-browser'))
+      .filter((name) => !name.startsWith('intent-browser'))
       .slice(0, 3);
     return classes.length ? `.${classes.map(cssEscape).join('.')}` : '';
   }

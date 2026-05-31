@@ -1,6 +1,7 @@
 const path = require('node:path');
 const { BaseWindow, WebContentsView, ipcMain } = require('electron');
 const { normalizeTargetUrl } = require('./cli');
+const { PRODUCT_NAME_EN } = require('./product');
 
 const TOOLBAR_HEIGHT = 92;
 const PANEL_WIDTH = 340;
@@ -46,7 +47,7 @@ function createWorkbench(session, options = {}) {
       height: options.height || 960,
       minWidth: 1024,
       minHeight: 720,
-      title: 'Agent Debug Browser',
+      title: options.productName || PRODUCT_NAME_EN,
       backgroundColor: '#172334',
       icon: getRuntimeIconPath()
     });

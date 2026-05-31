@@ -100,6 +100,6 @@ async function printJson(value) {
 }
 
 main().catch((error) => {
-  process.stderr.write(`agent-debug-browser: ${error.message}\n`);
+  process.stderr.write(`intent-browser: ${error.message}\n`);
   process.exit(1);
 });

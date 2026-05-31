@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Agent Debug Browser · 使用说明</title>
+    <title>灵犀页镜 · 使用说明</title>
     <style>
       /*
         Huashu-design decisions:
@@ -805,13 +805,13 @@
   </head>
   <body>
     <div class="page">
-      <header class="topbar" data-component="GuideTopbar" data-source-file="docs/agent-debug-browser-guide.html" data-line="22">
+      <header class="topbar" data-component="GuideTopbar" data-source-file="docs/intent-browser-guide.html" data-line="22">
         <div class="brand">
           <div class="mark" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M12 3l7.5 4.5v9L12 21l-7.5-4.5v-9L12 3z"></path><path d="M12 8v8"></path><path d="M8 10.3l4 2.3 4-2.3"></path></svg>
           </div>
           <div>
-            <strong>Agent Debug Browser</strong>
+            <strong>灵犀页镜</strong>
             <span>Overlay modes, diff payloads, CLI workflow</span>
           </div>
         </div>
@@ -825,7 +825,7 @@
       </header>
 
       <main class="wrap">
-        <section class="hero" data-component="GuideHero" data-source-file="docs/agent-debug-browser-guide.html" data-line="54">
+        <section class="hero" data-component="GuideHero" data-source-file="docs/intent-browser-guide.html" data-line="54">
           <div class="hero-copy">
             <div>
               <div class="kicker">MVP Operator Handbook</div>
@@ -886,7 +886,7 @@
           </aside>
         </section>
 
-        <section id="modes" class="band" data-component="ModeOverview" data-source-file="docs/agent-debug-browser-guide.html" data-line="118">
+        <section id="modes" class="band" data-component="ModeOverview" data-source-file="docs/intent-browser-guide.html" data-line="118">
           <div class="section-head">
             <h2>三种模式，语义不同，页面不刷新。</h2>
             <p>模式切换只改变 target preload 内部的运行时状态和遮罩行为。目标页面保持原有路由、前端状态和滚动位置，用户操作被转译成 Agent 可读的差异事件。</p>
@@ -943,7 +943,7 @@
           </div>
         </section>
 
-        <section id="architecture" class="band" data-component="ArchitectureMap" data-source-file="docs/agent-debug-browser-guide.html" data-line="190">
+        <section id="architecture" class="band" data-component="ArchitectureMap" data-source-file="docs/intent-browser-guide.html" data-line="190">
           <div class="section-head">
             <h2>运行时拆成三个清晰边界。</h2>
             <p>主进程负责窗口编排、RPC、CDP 增强和事件持久化；目标页面只接收隔离 preload；工具栏和 payload 面板在独立 WebContentsView 里渲染。</p>
@@ -975,7 +975,7 @@
           </div>
         </section>
 
-        <section id="cli" class="band" data-component="CliReference" data-source-file="docs/agent-debug-browser-guide.html" data-line="230">
+        <section id="cli" class="band" data-component="CliReference" data-source-file="docs/intent-browser-guide.html" data-line="230">
           <div class="section-head">
             <h2>Agent 通过 CLI 无门槛接入。</h2>
             <p>所有关键操作都能从命令行完成；GUI 是给人类查看和操作的界面，CLI 是给 Agent 拉取状态和消费 Diff 的界面。</p>
@@ -986,37 +986,37 @@
               <h3>启动页面</h3>
               <p>打开本地 HTML 或远程 URL，并把用户操作追加写入 NDJSON。</p>
               <div class="cmd">
-                <code>node bin/agent-debug-browser.js docs/agent-debug-browser-guide.html --port 17345 --out ./diffs.ndjson</code>
+                <code>node bin/intent-browser.js docs/intent-browser-guide.html --port 17345 --out ./diffs.ndjson</code>
               </div>
             </article>
             <article class="command-card">
               <h3>读取交互</h3>
               <p>Agent 可轮询 JSON，也可以用 NDJSON 直接做流式消费。</p>
               <div class="cmd">
-                <code>node bin/agent-debug-browser.js read --port 17345 --since 0</code>
-                <code>node bin/agent-debug-browser.js read --port 17345 --format ndjson</code>
+                <code>node bin/intent-browser.js read --port 17345 --since 0</code>
+                <code>node bin/intent-browser.js read --port 17345 --format ndjson</code>
               </div>
             </article>
             <article class="command-card">
               <h3>切换模式</h3>
               <p>无需刷新目标页面，命令发出后主进程通过 IPC 通知 target preload。</p>
               <div class="cmd">
-                <code>node bin/agent-debug-browser.js mode quick-edit --port 17345</code>
-                <code>node bin/agent-debug-browser.js mode annotation --port 17345</code>
+                <code>node bin/intent-browser.js mode quick-edit --port 17345</code>
+                <code>node bin/intent-browser.js mode annotation --port 17345</code>
               </div>
             </article>
             <article class="command-card">
               <h3>查看状态</h3>
               <p>用于确认当前 URL、事件数量、最近模式切换延迟和 session id。</p>
               <div class="cmd">
-                <code>node bin/agent-debug-browser.js snapshot --port 17345</code>
-                <code>node bin/agent-debug-browser.js --help</code>
+                <code>node bin/intent-browser.js snapshot --port 17345</code>
+                <code>node bin/intent-browser.js --help</code>
               </div>
             </article>
           </div>
         </section>
 
-        <section id="payload" class="band" data-component="PayloadReference" data-source-file="docs/agent-debug-browser-guide.html" data-line="284">
+        <section id="payload" class="band" data-component="PayloadReference" data-source-file="docs/intent-browser-guide.html" data-line="284">
           <div class="section-head">
             <h2>Payload 不是截图描述，是可执行定位。</h2>
             <p>Agent 收到的不是“左上角那个标题”这种自然语言猜谜，而是多层定位信息与明确 change。即使 selector 失效，也能用 XPath、DOM path、source metadata 或 CDP backend id 回退。</p>
@@ -1052,7 +1052,7 @@
     "source": {
       "explicit": {
         "data-component": "GuideHero",
-        "data-source-file": "docs/agent-debug-browser-guide.html"
+        "data-source-file": "docs/intent-browser-guide.html"
       },
       "explicitScope": "ancestor"
     },
@@ -1069,14 +1069,14 @@
           </div>
         </section>
 
-        <section id="test-zone" class="band" data-component="InteractionTestZone" data-source-file="docs/agent-debug-browser-guide.html" data-line="342">
+        <section id="test-zone" class="band" data-component="InteractionTestZone" data-source-file="docs/intent-browser-guide.html" data-line="342">
           <div class="section-head">
             <h2>这块区域专门拿来测试交互。</h2>
             <p>用项目浏览器打开本页后，切到 Quick Edit 可双击改标题；切到 Annotation 可点击标题或清单钉批注。右侧 payload 面板和 CLI 都应该同步出现事件。</p>
           </div>
 
           <div class="test-zone">
-            <article class="editable-spec" data-testid="editable-spec" data-component="EditableSpecCard" data-source-file="docs/agent-debug-browser-guide.html" data-line="351">
+            <article class="editable-spec" data-testid="editable-spec" data-component="EditableSpecCard" data-source-file="docs/intent-browser-guide.html" data-line="351">
               <div class="label">Editable target</div>
               <h3 data-testid="editable-title">把这里当成 Agent 生成页面上的真实标题。</h3>
               <p data-testid="editable-copy">这段文字适合测试 Quick Edit：双击后输入新文案，失焦时应生成 text.replace payload；点击这里插入批注，应生成 annotation.create payload。</p>
@@ -1092,7 +1092,7 @@
         </section>
 
         <footer class="footer" data-component="GuideFooter">
-          Agent Debug Browser · HTML handbook generated with Huashu-design context discipline. Open this file with the project browser to test overlay interactions end to end.
+          灵犀页镜 · HTML handbook generated with Huashu-design context discipline. Open this file with the project browser to test overlay interactions end to end.
         </footer>
       </main>
     </div>

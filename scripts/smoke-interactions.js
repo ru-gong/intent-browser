@@ -5,7 +5,7 @@ const process = require('node:process');
 const options = parseArgs(process.argv.slice(2));
 const appPort = Number(options.appPort || 19274);
 const cdpPort = Number(options.cdpPort || 19374);
-const targetUrlPart = options.target || 'agent-debug-browser-guide.html';
+const targetUrlPart = options.target || 'intent-browser-guide.html';
 
 main().catch((error) => {
   console.error(error);
@@ -26,7 +26,7 @@ async function main() {
           const rect = el.getBoundingClientRect();
           const init = { bubbles: true, cancelable: true, composed: true, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2, button: 0, detail: 2 };
           el.dispatchEvent(new MouseEvent('dblclick', init));
-          el.innerText = 'Agent Debug Browser turns page feedback into code-ready diffs.';
+          el.innerText = 'Intent Browser turns page feedback into code-ready diffs.';
           el.dispatchEvent(new FocusEvent('blur', { bubbles: true, cancelable: true, composed: true }));
           return { text: el.innerText, rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } };
         })()

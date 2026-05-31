@@ -1,4 +1,4 @@
-# Agent Debug Browser Protocol
+# Intent Browser Protocol
 
 ## HTTP
 
@@ -113,7 +113,7 @@ Server notifications:
     }
   },
   "provenance": {
-    "client": "agent-debug-browser",
+    "client": "intent-browser",
     "runtime": "electron-isolated-preload",
     "overlayMode": "quick-edit"
   }

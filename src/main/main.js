@@ -4,6 +4,7 @@ const { parseCliArgs } = require('./cli');
 const { SessionBus } = require('./session');
 const { AgentRpcServer } = require('./rpc-server');
 const { createWorkbench } = require('./workbench');
+const { productNameForLocales } = require('./product');
 
 let rpcServer = null;
 let workbench = null;
@@ -23,12 +24,16 @@ async function boot() {
     return;
   }
 
-  app.setName('Agent Debug Browser');
   app.commandLine.appendSwitch('disable-features', 'AutofillServerCommunication');
   if (parsed.options.remoteDebuggingPort) {
     app.commandLine.appendSwitch('remote-debugging-port', String(parsed.options.remoteDebuggingPort));
   }
   await app.whenReady();
+  parsed.options.productName = productNameForLocales([
+    app.getLocale(),
+    ...app.getPreferredSystemLanguages()
+  ]);
+  app.setName(parsed.options.productName);
   if (process.platform === 'darwin' && app.dock) {
     app.dock.setIcon(getDockIconPath(appRoot));
   }

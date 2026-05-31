@@ -145,14 +145,14 @@ function toHttpUrl(options, pathname) {
 }
 
 function buildHelp() {
-  return `Agent Debug Browser
+  return `Intent Browser
 
 Usage:
-  agent-debug-browser [url] [options]
-  agent-debug-browser open [url] [options]
-  agent-debug-browser read [--port 17345] [--since 0] [--format json|ndjson]
-  agent-debug-browser mode <preview|quick-edit|annotation> [--port 17345]
-  agent-debug-browser snapshot [--port 17345]
+  intent-browser [url] [options]
+  intent-browser open [url] [options]
+  intent-browser read [--port 17345] [--since 0] [--format json|ndjson]
+  intent-browser mode <preview|quick-edit|annotation> [--port 17345]
+  intent-browser snapshot [--port 17345]
 
 Options:
   --url <url-or-file>       Target page URL or local HTML file.
@@ -190,8 +190,8 @@ function looksLikeAppPath(value, context = {}) {
   if (
     value.endsWith('.js') ||
     value.endsWith('app.asar') ||
-    basename === 'agent-debug-browser' ||
-    basename === 'agent-debug-browser.js'
+    basename === 'intent-browser' ||
+    basename === 'intent-browser.js'
   ) {
     return true;
   }
