@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agent Debug Browser Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #1a1f2b;
+        --muted: #697386;
+        --line: #d8dee8;
+        --green: #0f9f7a;
+        --blue: #2f6fed;
+        --rose: #c84867;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background: #f6f8fb;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+
+      .hero {
+        min-height: 360px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 420px;
+        gap: 28px;
+        align-items: center;
+        padding: 34px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .eyebrow {
+        color: var(--green);
+        font-size: 13px;
+        font-weight: 760;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 660px;
+        margin: 12px 0 16px;
+        font-size: 48px;
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 610px;
+        margin: 0 0 24px;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1.55;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        border: 0;
+        border-radius: 7px;
+        padding: 12px 16px;
+        background: var(--blue);
+        color: white;
+        font-weight: 680;
+      }
+
+      .button.secondary {
+        background: #e9eef7;
+        color: #223047;
+      }
+
+      .product-shot {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        object-fit: cover;
+        background: #101720;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 22px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 20px;
+      }
+
+      .card h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .metric {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: var(--rose);
+      }
+
+      .metric strong {
+        font-size: 28px;
+      }
+
+      @media (max-width: 860px) {
+        main {
+          padding: 18px;
+        }
+
+        .hero {
+          grid-template-columns: 1fr;
+          padding: 24px;
+        }
+
+        h1 {
+          font-size: 36px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero" data-component="HeroPanel" data-source-file="samples/demo.html" data-line="42">
+        <div>
+          <div class="eyebrow">Agent generated page</div>
+          <h1 data-testid="hero-title">Debug visual changes at the speed of thought.</h1>
+          <p class="lead">Use Quick Edit to directly revise copy, images, spacing, and layout. Use Annotation to pin precise feedback anywhere on the page.</p>
+          <div class="actions">
+            <button class="button" data-testid="primary-cta">Start editing</button>
+            <button class="button secondary">Review payload</button>
+          </div>
+        </div>
+        <img
+          class="product-shot"
+          alt="Browser overlay product mock"
+          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='840' height='630' viewBox='0 0 840 630'%3E%3Crect width='840' height='630' fill='%23101720'/%3E%3Crect x='72' y='70' width='696' height='490' rx='24' fill='%231c2633' stroke='%23455969'/%3E%3Crect x='112' y='118' width='616' height='64' rx='10' fill='%232b3747'/%3E%3Crect x='112' y='222' width='310' height='242' rx='14' fill='%2328d3a6' fill-opacity='.18' stroke='%2328d3a6'/%3E%3Crect x='460' y='222' width='268' height='242' rx='14' fill='%236aa9ff' fill-opacity='.18' stroke='%236aa9ff'/%3E%3Ccircle cx='170' cy='150' r='12' fill='%23ff6b6b'/%3E%3Ccircle cx='210' cy='150' r='12' fill='%23f6c85f'/%3E%3Ccircle cx='250' cy='150' r='12' fill='%2328d3a6'/%3E%3Cpath d='M168 344h198M168 382h148M510 320h160M510 358h126' stroke='%23e9edf1' stroke-width='18' stroke-linecap='round'/%3E%3C/svg%3E">
+      </section>
+
+      <section class="grid" data-component="FeatureGrid">
+        <article class="card" data-testid="card-selector">
+          <div class="metric"><strong>95%</strong><span>target accuracy goal</span></div>
+          <h2>Robust locator stack</h2>
+          <p>Selectors, XPath, DOM path, component metadata, and CDP backend node ids travel together in one payload.</p>
+        </article>
+        <article class="card">
+          <div class="metric"><strong>&lt;50ms</strong><span>mode switching</span></div>
+          <h2>No page refresh</h2>
+          <p>Preview, quick edit, and annotation are runtime flags inside the injected overlay.</p>
+        </article>
+        <article class="card">
+          <div class="metric"><strong>JSON</strong><span>agent ready</span></div>
+          <h2>Readable by CLI</h2>
+          <p>Every interaction is streamed to HTTP, WebSocket JSON-RPC, and optional NDJSON output.</p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

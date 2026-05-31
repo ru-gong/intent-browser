@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agent Debug Browser · 使用说明</title>
+    <style>
+      /*
+        Huashu-design decisions:
+        - Direction: Takram x Information Architects. The page is a business-grade operating handbook, not a marketing site.
+        - Context lifted from the product chrome, softened into a light enterprise palette with 8px radius.
+        - Visual hierarchy is carried by grid, calm cards, payload anatomy, and restrained product diagrams.
+        - No decorative blobs, no one-note palette, no oversized landing-page trope.
+      */
+      :root {
+        color-scheme: light;
+        --ink: #172033;
+        --muted: #617089;
+        --dim: #8a97a8;
+        --bg: #f3f6fb;
+        --panel: #ffffff;
+        --panel-2: #f8fafd;
+        --panel-3: #eef3f8;
+        --line: #d8e1ec;
+        --line-soft: rgba(43, 57, 78, 0.13);
+        --mint: #0b9f7b;
+        --blue: #2f6fed;
+        --amber: #b7791f;
+        --rose: #c2415d;
+        --violet: #6654d9;
+        --paper: #ffffff;
+        --paper-ink: #172033;
+        --shadow: 0 18px 52px rgba(31, 45, 70, 0.12);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: var(--bg);
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(47, 111, 237, 0.055) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(47, 111, 237, 0.045) 1px, transparent 1px),
+          var(--bg);
+        background-size: 56px 56px;
+        letter-spacing: 0;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .page {
+        min-height: 100vh;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: center;
+        padding: 12px 28px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(16px);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 0;
+      }
+
+      .mark {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(40, 211, 166, 0.52);
+        border-radius: 8px;
+        color: var(--mint);
+        background: #e8fbf5;
+      }
+
+      .mark svg,
+      .icon {
+        width: 17px;
+        height: 17px;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 14px;
+        line-height: 1.2;
+      }
+
+      .brand span {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .nav {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .nav a {
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 12px;
+      }
+
+      .nav a:hover {
+        border-color: var(--line);
+        color: var(--ink);
+        background: #eef4fb;
+      }
+
+      .wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 34px 28px 72px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(420px, 0.92fr);
+        gap: 28px;
+        align-items: stretch;
+        min-height: 560px;
+      }
+
+      .hero-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 18px 0;
+      }
+
+      .kicker {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 9px;
+        border: 1px solid rgba(40, 211, 166, 0.36);
+        border-radius: 999px;
+        color: #08745e;
+        background: #e7fbf5;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      h1 {
+        max-width: 780px;
+        margin: 20px 0 18px;
+        font-size: clamp(52px, 6.2vw, 92px);
+        line-height: 0.92;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 720px;
+        margin: 0;
+        color: #40506a;
+        font-size: 19px;
+        line-height: 1.65;
+      }
+
+      .meta-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .metric {
+        min-width: 0;
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: 0 8px 26px rgba(31, 45, 70, 0.08);
+      }
+
+      .metric b {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--ink);
+        font-size: 22px;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .console {
+        position: relative;
+        min-height: 560px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: var(--shadow);
+      }
+
+      .console-head {
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+        border-bottom: 1px solid var(--line);
+        background: #f8fafd;
+      }
+
+      .traffic {
+        display: flex;
+        gap: 7px;
+      }
+
+      .traffic i {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+      }
+
+      .traffic i:nth-child(1) { background: var(--rose); }
+      .traffic i:nth-child(2) { background: var(--amber); }
+      .traffic i:nth-child(3) { background: var(--mint); }
+
+      .endpoint {
+        max-width: 68%;
+        overflow: hidden;
+        color: var(--muted);
+        font: 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .console-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 230px;
+        height: calc(100% - 42px);
+      }
+
+      .preview-pane {
+        padding: 22px;
+        background: #eef3fb;
+        color: var(--paper-ink);
+      }
+
+      .mini-page {
+        min-height: 100%;
+        padding: 20px;
+        border: 1px solid #d7dee9;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .mini-eyebrow {
+        color: #0a8e6f;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .mini-title {
+        max-width: 360px;
+        margin: 12px 0 10px;
+        font-size: 34px;
+        line-height: 1.02;
+        font-weight: 830;
+        color: #171d25;
+      }
+
+      .mini-copy {
+        max-width: 430px;
+        color: #657184;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .overlay-demo {
+        position: relative;
+        margin-top: 22px;
+        width: min(410px, 100%);
+        aspect-ratio: 1.9 / 1;
+        border-radius: 8px;
+        border: 1px solid #cfd7e3;
+        background: #e8eef6;
+      }
+
+      .overlay-demo::before {
+        content: "";
+        position: absolute;
+        left: 24px;
+        top: 22px;
+        right: 24px;
+        height: 22px;
+        border-radius: 6px;
+        background: #dbe5f0;
+      }
+
+      .overlay-demo::after {
+        content: "";
+        position: absolute;
+        left: 36px;
+        top: 62px;
+        width: 44%;
+        height: 42%;
+        border: 2px solid var(--mint);
+        border-radius: 7px;
+        background: rgba(40, 211, 166, 0.14);
+        box-shadow: 0 0 0 2px rgba(40, 211, 166, 0.09);
+      }
+
+      .pin {
+        position: absolute;
+        left: 62%;
+        top: 50%;
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        border: 1px solid rgba(246, 200, 95, 0.9);
+        background: #fff8e1;
+        color: var(--amber);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .side-pane {
+        padding: 14px;
+        border-left: 1px solid var(--line);
+        background: #f8fafd;
+      }
+
+      .side-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 13px;
+        font-weight: 760;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 0 8px;
+        border: 1px solid rgba(40, 211, 166, 0.48);
+        border-radius: 999px;
+        color: #08745e;
+        background: #e7fbf5;
+        font-size: 11px;
+      }
+
+      .payload-card {
+        margin-top: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #ffffff;
+      }
+
+      .payload-card header {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 9px;
+        border-bottom: 1px solid var(--line);
+        color: var(--mint);
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      pre,
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      pre {
+        margin: 0;
+        overflow: auto;
+        padding: 12px;
+        color: #243044;
+        font-size: 11px;
+        line-height: 1.55;
+      }
+
+      .band {
+        margin-top: 36px;
+        padding-top: 30px;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(320px, 1fr);
+        gap: 28px;
+        align-items: end;
+        margin-bottom: 18px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(28px, 3vw, 48px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .section-head p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .mode-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .mode-card,
+      .doc-card,
+      .command-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 24px rgba(31, 45, 70, 0.06);
+      }
+
+      .mode-card {
+        min-height: 270px;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 18px;
+        padding: 18px;
+      }
+
+      .mode-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .mode-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #f4f8fc;
+      }
+
+      .mode-icon.preview { color: var(--blue); }
+      .mode-icon.edit { color: var(--mint); }
+      .mode-icon.annotation { color: var(--amber); }
+
+      .mode-index {
+        color: var(--dim);
+        font: 12px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      .mode-card h3,
+      .doc-card h3,
+      .command-card h3 {
+        margin: 0;
+        font-size: 19px;
+      }
+
+      .mode-card p,
+      .doc-card p,
+      .command-card p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        line-height: 1.65;
+        font-size: 14px;
+      }
+
+      .mode-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .mode-list li {
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        gap: 8px;
+        color: #4d5d74;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .mode-list li::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        margin-top: 6px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+
+      .architecture {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr) 280px;
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .node {
+        min-height: 118px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 8px 24px rgba(31, 45, 70, 0.06);
+      }
+
+      .node strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 15px;
+      }
+
+      .node span {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .spine {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .spine .node {
+        position: relative;
+        background: #f8fafd;
+      }
+
+      .spine .node::after {
+        content: "";
+        position: absolute;
+        right: -11px;
+        top: 50%;
+        width: 10px;
+        height: 1px;
+        background: var(--line);
+      }
+
+      .spine .node:last-child::after {
+        display: none;
+      }
+
+      .command-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 14px;
+      }
+
+      .command-card {
+        padding: 18px;
+      }
+
+      .cmd {
+        margin-top: 14px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .cmd code {
+        display: block;
+        overflow: auto;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: #172033;
+        background: #f8fafd;
+        font-size: 12px;
+        line-height: 1.45;
+        white-space: nowrap;
+      }
+
+      .payload-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 0.82fr) minmax(380px, 1fr);
+        gap: 14px;
+      }
+
+      .doc-card {
+        padding: 18px;
+      }
+
+      .payload-table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .payload-table th,
+      .payload-table td {
+        padding: 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        font-size: 13px;
+      }
+
+      .payload-table th {
+        color: var(--muted);
+        font-weight: 650;
+        background: #f8fafd;
+      }
+
+      .payload-table tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .payload-table code {
+        color: var(--mint);
+        font-size: 12px;
+      }
+
+      .test-zone {
+        display: grid;
+        grid-template-columns: minmax(0, 0.85fr) minmax(360px, 1fr);
+        gap: 14px;
+      }
+
+      .editable-spec {
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        color: var(--paper-ink);
+      }
+
+      .editable-spec .label {
+        color: #0e9273;
+        font-size: 12px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .editable-spec h3 {
+        margin: 12px 0 10px;
+        font-size: 34px;
+        line-height: 1.04;
+      }
+
+      .editable-spec p {
+        margin: 0;
+        color: #697588;
+        line-height: 1.7;
+      }
+
+      .checklist {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .checklist li {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 10px;
+        align-items: start;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        color: #243044;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .checklist li::before {
+        content: "";
+        width: 20px;
+        height: 20px;
+        margin-top: 1px;
+        border-radius: 999px;
+        border: 1px solid rgba(40, 211, 166, 0.62);
+        background:
+          linear-gradient(135deg, transparent 42%, var(--mint) 43% 56%, transparent 57%),
+          linear-gradient(45deg, transparent 45%, var(--mint) 46% 58%, transparent 59%);
+      }
+
+      .footer {
+        margin-top: 44px;
+        padding-top: 24px;
+        border-top: 1px solid var(--line-soft);
+        color: var(--dim);
+        font-size: 12px;
+      }
+
+      @media (max-width: 1060px) {
+        .hero,
+        .section-head,
+        .payload-layout,
+        .test-zone,
+        .architecture,
+        .command-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .console {
+          min-height: 520px;
+        }
+
+        .mode-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .spine {
+          grid-template-columns: 1fr;
+        }
+
+        .spine .node::after {
+          display: none;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .topbar {
+          position: static;
+          grid-template-columns: 1fr;
+        }
+
+        .nav {
+          flex-wrap: wrap;
+        }
+
+        .wrap {
+          padding: 24px 16px 56px;
+        }
+
+        .hero {
+          min-height: 0;
+        }
+
+        .console-body,
+        .meta-strip {
+          grid-template-columns: 1fr;
+        }
+
+        .side-pane {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+        }
+
+        h1 {
+          font-size: 46px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar" data-component="GuideTopbar" data-source-file="docs/agent-debug-browser-guide.html" data-line="22">
+        <div class="brand">
+          <div class="mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 3l7.5 4.5v9L12 21l-7.5-4.5v-9L12 3z"></path><path d="M12 8v8"></path><path d="M8 10.3l4 2.3 4-2.3"></path></svg>
+          </div>
+          <div>
+            <strong>Agent Debug Browser</strong>
+            <span>Overlay modes, diff payloads, CLI workflow</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="文档导航">
+          <a href="#modes">模式</a>
+          <a href="#architecture">架构</a>
+          <a href="#cli">CLI</a>
+          <a href="#payload">Payload</a>
+          <a href="#test-zone">测试区</a>
+        </nav>
+      </header>
+
+      <main class="wrap">
+        <section class="hero" data-component="GuideHero" data-source-file="docs/agent-debug-browser-guide.html" data-line="54">
+          <div class="hero-copy">
+            <div>
+              <div class="kicker">MVP Operator Handbook</div>
+              <h1 data-testid="guide-title">给 Agent 调试页面的专用浏览器。</h1>
+              <p class="lead" data-testid="guide-lead">
+                它不是普通预览窗口，而是一层能理解 DOM、空间坐标和用户意图的操作界面。用户在页面上改字、改图、拖拽布局、插入批注，Agent 立即收到结构化 Diff Payload。
+              </p>
+            </div>
+            <div class="meta-strip" aria-label="关键指标">
+              <div class="metric" data-testid="metric-switch">
+                <b>&lt;50ms</b>
+                <span>三种 overlay mode 无刷新切换，实测 CLI 切换 annotation 为 1ms。</span>
+              </div>
+              <div class="metric">
+                <b>95%+</b>
+                <span>多种线索一起锁定目标位置，让 Agent 更容易准确改到你指的地方。</span>
+              </div>
+              <div class="metric">
+                <b>0 build</b>
+                <span>浏览器只采集和回传 Diff，代码重构与编译留在 Agent 侧。</span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="console" aria-label="浏览器界面预览" data-component="BrowserPreviewDiagram">
+            <div class="console-head">
+              <div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div>
+              <div class="endpoint">http://127.0.0.1:17345/rpc</div>
+            </div>
+            <div class="console-body">
+              <div class="preview-pane">
+                <div class="mini-page">
+                  <div class="mini-eyebrow">Agent generated page</div>
+                  <div class="mini-title">Debug visual changes at the speed of thought.</div>
+                  <p class="mini-copy">A target page receives an isolated overlay. The overlay catches edits and annotations without reloading the page.</p>
+                  <div class="overlay-demo" aria-hidden="true">
+                    <div class="pin">1</div>
+                  </div>
+                </div>
+              </div>
+              <div class="side-pane">
+                <div class="side-title">
+                  <span>Diff Payloads</span>
+                  <span class="pill">annotation</span>
+                </div>
+                <div class="payload-card">
+                  <header><span>ANNOTATION.CREATE</span><span>#1</span></header>
+                  <pre>{
+  "target": {
+    "cssSelector": "h1[data-testid=\"guide-title\"]",
+    "xpath": "/html/body/main/section/h1",
+    "cdp": { "backendNodeId": 44 }
+  }
+}</pre>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section id="modes" class="band" data-component="ModeOverview" data-source-file="docs/agent-debug-browser-guide.html" data-line="118">
+          <div class="section-head">
+            <h2>三种模式，语义不同，页面不刷新。</h2>
+            <p>模式切换只改变 target preload 内部的运行时状态和遮罩行为。目标页面保持原有路由、前端状态和滚动位置，用户操作被转译成 Agent 可读的差异事件。</p>
+          </div>
+
+          <div class="mode-grid">
+            <article class="mode-card" data-testid="mode-preview">
+              <div class="mode-top">
+                <div class="mode-icon preview"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg></div>
+                <span class="mode-index">01</span>
+              </div>
+              <div>
+                <h3>常规预览</h3>
+                <p>像普通浏览器一样查看页面，但保留 CLI、RPC 和模式切换能力。</p>
+              </div>
+              <ul class="mode-list">
+                <li>页面正常点击、滚动、输入。</li>
+                <li>overlay 隐藏，不劫持用户事件。</li>
+                <li>适合 Agent 生成后的第一眼检查。</li>
+              </ul>
+            </article>
+
+            <article class="mode-card" data-testid="mode-quick-edit">
+              <div class="mode-top">
+                <div class="mode-icon edit"><svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path></svg></div>
+                <span class="mode-index">02</span>
+              </div>
+              <div>
+                <h3>快捷编辑</h3>
+                <p>面向 WYSIWYG 反馈：改文本、改图片链接、调整常用 CSS 数值、拖拽元素。</p>
+              </div>
+              <ul class="mode-list">
+                <li>双击文本进入纯文本 contenteditable。</li>
+                <li>图片和背景图可直接替换 URL。</li>
+                <li>样式变更生成 before / after Diff。</li>
+              </ul>
+            </article>
+
+            <article class="mode-card" data-testid="mode-annotation">
+              <div class="mode-top">
+                <div class="mode-icon annotation"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path></svg></div>
+                <span class="mode-index">03</span>
+              </div>
+              <div>
+                <h3>批注插入</h3>
+                <p>用户在任意元素或区域打点，写下修改意见，形成空间锚定反馈。</p>
+              </div>
+              <ul class="mode-list">
+                <li>点击即生成可保存气泡。</li>
+                <li>payload 包含 viewport / page / element 坐标。</li>
+                <li>适合设计审阅和精确重构指令。</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="architecture" class="band" data-component="ArchitectureMap" data-source-file="docs/agent-debug-browser-guide.html" data-line="190">
+          <div class="section-head">
+            <h2>运行时拆成三个清晰边界。</h2>
+            <p>主进程负责窗口编排、RPC、CDP 增强和事件持久化；目标页面只接收隔离 preload；工具栏和 payload 面板在独立 WebContentsView 里渲染。</p>
+          </div>
+
+          <div class="architecture">
+            <div class="node">
+              <strong>CLI / Agent</strong>
+              <span>启动 GUI、切换模式、读取事件、订阅 JSON-RPC 通知。</span>
+            </div>
+            <div class="spine">
+              <div class="node">
+                <strong>Electron Main</strong>
+                <span>SessionBus、AgentRpcServer、WebContentsView 布局。</span>
+              </div>
+              <div class="node">
+                <strong>Target Preload</strong>
+                <span>隔离世界内捕获事件，封闭 Shadow DOM 渲染遮罩。</span>
+              </div>
+              <div class="node">
+                <strong>CDP DOM</strong>
+                <span>用 DOM.getNodeForLocation 补充 backendNodeId。</span>
+              </div>
+            </div>
+            <div class="node">
+              <strong>Diff Payload</strong>
+              <span>selector、XPath、source metadata、坐标、具体 change。</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="cli" class="band" data-component="CliReference" data-source-file="docs/agent-debug-browser-guide.html" data-line="230">
+          <div class="section-head">
+            <h2>Agent 通过 CLI 无门槛接入。</h2>
+            <p>所有关键操作都能从命令行完成；GUI 是给人类查看和操作的界面，CLI 是给 Agent 拉取状态和消费 Diff 的界面。</p>
+          </div>
+
+          <div class="command-grid">
+            <article class="command-card">
+              <h3>启动页面</h3>
+              <p>打开本地 HTML 或远程 URL，并把用户操作追加写入 NDJSON。</p>
+              <div class="cmd">
+                <code>node bin/agent-debug-browser.js docs/agent-debug-browser-guide.html --port 17345 --out ./diffs.ndjson</code>
+              </div>
+            </article>
+            <article class="command-card">
+              <h3>读取交互</h3>
+              <p>Agent 可轮询 JSON，也可以用 NDJSON 直接做流式消费。</p>
+              <div class="cmd">
+                <code>node bin/agent-debug-browser.js read --port 17345 --since 0</code>
+                <code>node bin/agent-debug-browser.js read --port 17345 --format ndjson</code>
+              </div>
+            </article>
+            <article class="command-card">
+              <h3>切换模式</h3>
+              <p>无需刷新目标页面，命令发出后主进程通过 IPC 通知 target preload。</p>
+              <div class="cmd">
+                <code>node bin/agent-debug-browser.js mode quick-edit --port 17345</code>
+                <code>node bin/agent-debug-browser.js mode annotation --port 17345</code>
+              </div>
+            </article>
+            <article class="command-card">
+              <h3>查看状态</h3>
+              <p>用于确认当前 URL、事件数量、最近模式切换延迟和 session id。</p>
+              <div class="cmd">
+                <code>node bin/agent-debug-browser.js snapshot --port 17345</code>
+                <code>node bin/agent-debug-browser.js --help</code>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="payload" class="band" data-component="PayloadReference" data-source-file="docs/agent-debug-browser-guide.html" data-line="284">
+          <div class="section-head">
+            <h2>Payload 不是截图描述，是可执行定位。</h2>
+            <p>Agent 收到的不是“左上角那个标题”这种自然语言猜谜，而是多层定位信息与明确 change。即使 selector 失效，也能用 XPath、DOM path、source metadata 或 CDP backend id 回退。</p>
+          </div>
+
+          <div class="payload-layout">
+            <div class="doc-card">
+              <h3>字段解剖</h3>
+              <p>同一个事件会带上页面、目标、变更、交互和来源。目标字段刻意冗余，是为了跨框架、跨组件树、跨生成器都能被 Agent 识别。</p>
+              <table class="payload-table" aria-label="payload 字段说明">
+                <thead>
+                  <tr><th>字段</th><th>用途</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>target.cssSelector</code></td><td>首选定位，优先使用 id、data-testid、aria-label 等稳定属性。</td></tr>
+                  <tr><td><code>target.xpath</code></td><td>结构回退，适合没有稳定属性的静态页面。</td></tr>
+                  <tr><td><code>target.source</code></td><td>显式 data-source、React/Vue 调试信息、最近祖先组件元数据。</td></tr>
+                  <tr><td><code>target.cdp</code></td><td>Chromium DevTools Protocol 返回的 backend node 信息。</td></tr>
+                  <tr><td><code>interaction.point</code></td><td>viewport / page 坐标，用于空间锚点和视觉重构。</td></tr>
+                  <tr><td><code>change</code></td><td>文本替换、图片链接、样式数值或批注意见。</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="payload-card">
+              <header><span>EXAMPLE PAYLOAD</span><span>annotation.create</span></header>
+              <pre>{
+  "mode": "annotation",
+  "action": "annotation.create",
+  "target": {
+    "tagName": "h1",
+    "cssSelector": "h1[data-testid=\"guide-title\"]",
+    "xpath": "/html[1]/body[1]/div[1]/main[1]/section[1]/div[1]/h1[1]",
+    "source": {
+      "explicit": {
+        "data-component": "GuideHero",
+        "data-source-file": "docs/agent-debug-browser-guide.html"
+      },
+      "explicitScope": "ancestor"
+    },
+    "coordinates": {
+      "viewport": { "x": 318, "y": 212 },
+      "element": { "rx": 0.42, "ry": 0.51 }
+    }
+  },
+  "change": {
+    "text": "Make the title more direct for first-time users."
+  }
+}</pre>
+            </div>
+          </div>
+        </section>
+
+        <section id="test-zone" class="band" data-component="InteractionTestZone" data-source-file="docs/agent-debug-browser-guide.html" data-line="342">
+          <div class="section-head">
+            <h2>这块区域专门拿来测试交互。</h2>
+            <p>用项目浏览器打开本页后，切到 Quick Edit 可双击改标题；切到 Annotation 可点击标题或清单钉批注。右侧 payload 面板和 CLI 都应该同步出现事件。</p>
+          </div>
+
+          <div class="test-zone">
+            <article class="editable-spec" data-testid="editable-spec" data-component="EditableSpecCard" data-source-file="docs/agent-debug-browser-guide.html" data-line="351">
+              <div class="label">Editable target</div>
+              <h3 data-testid="editable-title">把这里当成 Agent 生成页面上的真实标题。</h3>
+              <p data-testid="editable-copy">这段文字适合测试 Quick Edit：双击后输入新文案，失焦时应生成 text.replace payload；点击这里插入批注，应生成 annotation.create payload。</p>
+            </article>
+
+            <ul class="checklist" aria-label="测试验收清单">
+              <li data-testid="check-mode">CLI 执行 <code>mode annotation</code> 后，工具栏高亮切到批注模式，侧栏状态同步更新。</li>
+              <li data-testid="check-annotation">点击左侧标题并保存批注后，侧栏 Events 计数加一，CLI read 能读到同一事件。</li>
+              <li data-testid="check-locator">payload 里应包含 data-testid、XPath、source ancestor 和 CDP backendNodeId。</li>
+              <li data-testid="check-clean">退出模式不刷新页面，不丢失滚动位置，不破坏页面原始布局。</li>
+            </ul>
+          </div>
+        </section>
+
+        <footer class="footer" data-component="GuideFooter">
+          Agent Debug Browser · HTML handbook generated with Huashu-design context discipline. Open this file with the project browser to test overlay interactions end to end.
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

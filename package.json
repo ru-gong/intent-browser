@@ -1,0 +1,32 @@
+{
+  "name": "agent-debug-browser",
+  "version": "0.1.0",
+  "description": "A dedicated Electron browser for agent-generated page debugging, quick editing, annotations, and diff payload capture.",
+  "main": "src/main/main.js",
+  "bin": {
+    "agent-debug-browser": "bin/agent-debug-browser.js"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . -- --url samples/demo.html --devtools",
+    "test": "node --test",
+    "test:unit": "node --test test/*.test.js",
+    "smoke:interactions": "node scripts/smoke-interactions.js"
+  },
+  "keywords": [
+    "agent",
+    "browser",
+    "electron",
+    "annotation",
+    "wysiwyg",
+    "debugging"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^42.3.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
