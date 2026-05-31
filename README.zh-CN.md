@@ -190,4 +190,4 @@ npm run smoke:interactions -- --app-port 19274 --cdp-port 19374
 
 ## 许可证
 
-MIT
+[MIT](./LICENSE)

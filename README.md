@@ -184,4 +184,4 @@ The repository does not yet include a production installer configuration. To dis
 
 ## License
 
-MIT
+[MIT](./LICENSE)
