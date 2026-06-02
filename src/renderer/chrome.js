@@ -13,6 +13,7 @@
     back: '<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>',
     forward: '<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>',
     reload: '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"></path><path d="M21 3v6h-6"></path></svg>',
+    file: '<svg viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7l-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"></path><path d="M8 13h8"></path></svg>',
     go: '<svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>',
     eye: '<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
     edit: '<svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path></svg>',
@@ -51,6 +52,9 @@
       </div>
       <form class="url-form" aria-label="${escapeAttribute(copy.url.aria)}">
         <input class="url-input" name="url" spellcheck="false" placeholder="${escapeAttribute(copy.url.placeholder)}" value="${escapeAttribute(state && state.url ? state.url : '')}">
+        <button class="file-button" type="button" data-action="open-file" title="${escapeAttribute(copy.nav.openFileHelp)}">
+          ${icons.file}<span>${escapeHtml(copy.nav.openFile)}</span>
+        </button>
         <button class="go-button" title="${escapeAttribute(copy.nav.goHelp)}">
           ${icons.go}<span>${escapeHtml(copy.nav.go)}</span>
         </button>
@@ -70,6 +74,11 @@
     app.querySelector('[data-action="back"]').addEventListener('click', () => api.back());
     app.querySelector('[data-action="forward"]').addEventListener('click', () => api.forward());
     app.querySelector('[data-action="reload"]').addEventListener('click', () => api.reload());
+    app.querySelector('[data-action="open-file"]').addEventListener('click', () => {
+      api.openLocalFile().catch((error) => {
+        console.error(error);
+      });
+    });
     app.querySelectorAll('[data-mode]').forEach((button) => {
       button.addEventListener('click', () => api.setMode(button.dataset.mode));
     });
@@ -190,6 +199,8 @@
           forwardHelp: '前往下一个浏览历史页面',
           reload: '刷新',
           reloadHelp: '重新加载当前目标页面',
+          openFile: '本地文件',
+          openFileHelp: '从本机选择 HTML 文件打开',
           go: '打开',
           goHelp: '加载地址栏中的 URL 或本地文件路径'
         },
@@ -248,6 +259,8 @@
         forwardHelp: 'Go to the next page in the target history',
         reload: 'Reload',
         reloadHelp: 'Reload the current target page',
+        openFile: 'File',
+        openFileHelp: 'Choose a local HTML file from this computer',
         go: 'Open',
         goHelp: 'Load the URL or local file path in the address bar'
       },

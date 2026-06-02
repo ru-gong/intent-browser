@@ -145,12 +145,24 @@ svg {
 }
 
 .nav-button,
+.file-button,
 .go-button {
   height: 42px;
   padding: 0 12px;
   font-size: 13px;
   font-weight: 650;
   white-space: nowrap;
+}
+
+.file-button {
+  border-color: rgba(40, 211, 166, 0.72);
+  background: rgba(40, 211, 166, 0.13);
+  color: #dffbf5;
+}
+
+.file-button:hover {
+  border-color: rgba(40, 211, 166, 0.98);
+  background: rgba(40, 211, 166, 0.22);
 }
 
 .go-button {
@@ -167,7 +179,7 @@ svg {
 .url-form {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(120px, 1fr) auto;
+  grid-template-columns: minmax(120px, 1fr) auto auto;
   gap: 8px;
 }
 
@@ -535,12 +547,14 @@ textarea:focus {
   }
 
   .nav-button,
+  .file-button,
   .go-button {
     width: 42px;
     padding: 0;
   }
 
   .nav-button span,
+  .file-button span,
   .go-button span,
   .mode-copy {
     display: none;

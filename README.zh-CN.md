@@ -49,6 +49,8 @@ node bin/intent-browser.js http://localhost:3000 --port 17345 --out ./diffs.ndjs
 node bin/intent-browser.js docs/intent-browser-guide.html --port 17345 --out ./diffs.ndjson
 ```
 
+窗口打开后，可以直接点击顶部工具栏的 **本地文件** 按钮，从本机选择 `.html`、`.htm` 或 `.xhtml` 文件。软件会自动把文件路径转换成 `file://` 地址并加载，不需要再手动输入本地路径。
+
 Windows PowerShell 示例：
 
 ```powershell

@@ -1,7 +1,9 @@
 const path = require('node:path');
-const { BaseWindow, WebContentsView, ipcMain } = require('electron');
+const { fileURLToPath } = require('node:url');
+const { BaseWindow, WebContentsView, ipcMain, dialog } = require('electron');
 const { normalizeTargetUrl } = require('./cli');
-const { PRODUCT_NAME_EN } = require('./product');
+const { htmlOpenDialogOptions, isLocalHtmlFile } = require('./local-files');
+const { PRODUCT_NAME_EN, PRODUCT_NAME_ZH } = require('./product');
 
 const TOOLBAR_HEIGHT = 92;
 const PANEL_WIDTH = 340;
@@ -21,6 +23,7 @@ function installGlobalIpcHandlers() {
   }
   globalIpcInstalled = true;
   ipcMain.handle('adb:chrome:get-state', () => activeWorkbench && activeWorkbench.getState());
+  ipcMain.handle('adb:chrome:open-local-file', () => activeWorkbench && activeWorkbench.openLocalFile());
   ipcMain.on('adb:chrome:set-mode', (_event, mode) => activeWorkbench && activeWorkbench.setMode(mode, 'toolbar'));
   ipcMain.on('adb:chrome:navigate', (_event, url) => activeWorkbench && activeWorkbench.navigate(url));
   ipcMain.on('adb:chrome:reload', () => activeWorkbench && activeWorkbench.reload());
@@ -175,6 +178,7 @@ function createWorkbench(session, options = {}) {
     activeWorkbench = {
       sessionId: session.id,
       getState,
+      openLocalFile,
       setMode,
       navigate,
       reload: () => targetView && targetView.webContents.reload(),
@@ -288,6 +292,70 @@ function createWorkbench(session, options = {}) {
       await targetView.webContents.loadURL(url);
     }
     return { ok: true, url, session: session.snapshot() };
+  }
+
+  async function openLocalFile() {
+    const currentFilePath = currentLocalFilePath();
+    const copy = localFileCopy();
+    const result = await dialog.showOpenDialog(htmlOpenDialogOptions(
+      currentFilePath || process.env.AGENT_DEBUG_BROWSER_CWD || process.cwd(),
+      copy.dialog
+    ));
+    if (result.canceled || !result.filePaths.length) {
+      return { ok: false, canceled: true, session: session.snapshot() };
+    }
+    const filePath = result.filePaths[0];
+    if (!isLocalHtmlFile(filePath)) {
+      await dialog.showMessageBox({
+        type: 'warning',
+        buttons: [copy.invalid.ok],
+        title: options.productName || PRODUCT_NAME_EN,
+        message: copy.invalid.message,
+        detail: copy.invalid.detail
+      });
+      return { ok: false, canceled: false, reason: 'unsupported-file', session: session.snapshot() };
+    }
+    return navigate(filePath);
+  }
+
+  function localFileCopy() {
+    if (options.productName === PRODUCT_NAME_ZH) {
+      return {
+        dialog: {
+          title: '打开本地 HTML 文件',
+          htmlFiles: 'HTML 文件',
+          allFiles: '所有文件'
+        },
+        invalid: {
+          ok: '知道了',
+          message: '请选择 HTML 文件',
+          detail: '灵犀页镜支持打开 .html、.htm 和 .xhtml 文件。'
+        }
+      };
+    }
+    return {
+      dialog: {
+        title: 'Open local HTML file',
+        htmlFiles: 'HTML Files',
+        allFiles: 'All Files'
+      },
+      invalid: {
+        ok: 'OK',
+        message: 'Choose an HTML file',
+        detail: 'Intent Browser can open .html, .htm, and .xhtml files.'
+      }
+    };
+  }
+
+  function currentLocalFilePath() {
+    if (!session.url || !session.url.startsWith('file://')) {
+      return null;
+    }
+    try {
+      return fileURLToPath(session.url);
+    } catch (_error) {
+      return null;
+    }
   }
 
   async function attachCdp() {

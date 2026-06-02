@@ -49,6 +49,8 @@ Open the generated handbook:
 node bin/intent-browser.js docs/intent-browser-guide.html --port 17345 --out ./diffs.ndjson
 ```
 
+After the window opens, use the **File** button in the toolbar to choose a local `.html`, `.htm`, or `.xhtml` file from your computer. The selected file is converted to a `file://` URL and loaded without typing the path manually.
+
 ## CLI
 
 Show all commands:

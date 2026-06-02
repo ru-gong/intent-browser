@@ -35,18 +35,34 @@ async function main() {
     await waitForAction(appPort, 'text.replace');
 
     await setMode(appPort, 'annotation');
-    await cdp.call('Runtime.evaluate', {
+    const annotationPoint = await cdp.call('Runtime.evaluate', {
       awaitPromise: true,
+      returnByValue: true,
       expression: `
         (() => {
           const el = document.querySelector('[data-testid="metric-switch"]');
           const rect = el.getBoundingClientRect();
-          const init = { bubbles: true, cancelable: true, composed: true, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2, button: 0, detail: 1 };
-          el.dispatchEvent(new MouseEvent('click', init));
-          return { rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } };
+          return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
         })()
       `
     });
+    await cdp.call('Input.dispatchMouseEvent', {
+      type: 'mousePressed',
+      button: 'left',
+      buttons: 1,
+      clickCount: 1,
+      x: annotationPoint.result.value.x,
+      y: annotationPoint.result.value.y
+    });
+    await cdp.call('Input.dispatchMouseEvent', {
+      type: 'mouseReleased',
+      button: 'left',
+      buttons: 0,
+      clickCount: 1,
+      x: annotationPoint.result.value.x,
+      y: annotationPoint.result.value.y
+    });
+    await delay(80);
     await cdp.call('Input.insertText', {
       text: 'Clarify that the measured switch latency comes from the CLI smoke test.'
     });
