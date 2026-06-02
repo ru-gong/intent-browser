@@ -1,12 +1,20 @@
 const path = require('node:path');
+const fs = require('node:fs/promises');
 const { fileURLToPath } = require('node:url');
 const { BaseWindow, WebContentsView, ipcMain, dialog } = require('electron');
+const {
+  agentExportDialogOptions,
+  buildAgentExport,
+  defaultAgentExportPath,
+  exportFormatForPath,
+  serializeAgentExport
+} = require('./agent-export');
 const { normalizeTargetUrl } = require('./cli');
 const { htmlOpenDialogOptions, isLocalHtmlFile } = require('./local-files');
 const { PRODUCT_NAME_EN, PRODUCT_NAME_ZH } = require('./product');
 
 const TOOLBAR_HEIGHT = 92;
-const PANEL_WIDTH = 340;
+const PANEL_WIDTH = 320;
 const TARGET_MARGIN = 12;
 const TARGET_PANEL_GAP = 12;
 let activeWorkbench = null;
@@ -24,6 +32,10 @@ function installGlobalIpcHandlers() {
   globalIpcInstalled = true;
   ipcMain.handle('adb:chrome:get-state', () => activeWorkbench && activeWorkbench.getState());
   ipcMain.handle('adb:chrome:open-local-file', () => activeWorkbench && activeWorkbench.openLocalFile());
+  ipcMain.handle('adb:chrome:export-for-agent', () => activeWorkbench && activeWorkbench.exportForAgent());
+  ipcMain.handle('adb:chrome:set-panel-visible', (_event, visible) => {
+    return activeWorkbench && activeWorkbench.setPanelVisible(visible);
+  });
   ipcMain.on('adb:chrome:set-mode', (_event, mode) => activeWorkbench && activeWorkbench.setMode(mode, 'toolbar'));
   ipcMain.on('adb:chrome:navigate', (_event, url) => activeWorkbench && activeWorkbench.navigate(url));
   ipcMain.on('adb:chrome:reload', () => activeWorkbench && activeWorkbench.reload());
@@ -42,6 +54,7 @@ function createWorkbench(session, options = {}) {
   let endpoint = null;
   let cdpReady = false;
   let pendingModeRequest = null;
+  let panelVisible = options.panelVisible !== false;
 
   function create(nextEndpoint) {
     endpoint = nextEndpoint;
@@ -130,14 +143,16 @@ function createWorkbench(session, options = {}) {
     const bounds = win.getContentBounds();
     const width = Math.max(1, bounds.width);
     const height = Math.max(1, bounds.height);
-    const panelWidth = Math.min(PANEL_WIDTH, Math.max(280, width - 360));
+    const panelWidth = panelVisible ? Math.min(PANEL_WIDTH, Math.max(280, width - 360)) : 0;
     const targetHeight = Math.max(1, height - TOOLBAR_HEIGHT - TARGET_MARGIN * 2);
-    const targetWidth = Math.max(320, width - panelWidth - TARGET_MARGIN - TARGET_PANEL_GAP);
+    const targetWidth = panelVisible
+      ? Math.max(320, width - panelWidth - TARGET_MARGIN - TARGET_PANEL_GAP)
+      : Math.max(320, width - TARGET_MARGIN * 2);
     toolbarView.setBounds({ x: 0, y: 0, width, height: TOOLBAR_HEIGHT });
     panelView.setBounds({
-      x: Math.max(0, width - panelWidth),
+      x: panelVisible ? Math.max(0, width - panelWidth) : width,
       y: TOOLBAR_HEIGHT,
-      width: panelWidth,
+      width: panelVisible ? panelWidth : 1,
       height: Math.max(1, height - TOOLBAR_HEIGHT)
     });
     targetView.setBounds({
@@ -179,6 +194,8 @@ function createWorkbench(session, options = {}) {
       sessionId: session.id,
       getState,
       openLocalFile,
+      exportForAgent,
+      setPanelVisible,
       setMode,
       navigate,
       reload: () => targetView && targetView.webContents.reload(),
@@ -217,6 +234,9 @@ function createWorkbench(session, options = {}) {
     return {
       ...session.snapshot(),
       endpoint,
+      ui: {
+        panelVisible
+      },
       target: {
         canGoBack: canGoBack(),
         canGoForward: canGoForward(),
@@ -318,6 +338,57 @@ function createWorkbench(session, options = {}) {
     return navigate(filePath);
   }
 
+  async function exportForAgent() {
+    const copy = agentExportCopy();
+    const events = session.listEvents(0);
+    if (!events.length) {
+      await dialog.showMessageBox({
+        type: 'info',
+        buttons: [copy.empty.ok],
+        title: options.productName || PRODUCT_NAME_EN,
+        message: copy.empty.message,
+        detail: copy.empty.detail
+      });
+      return { ok: false, reason: 'empty', session: getState() };
+    }
+
+    const result = await dialog.showSaveDialog(agentExportDialogOptions(
+      defaultAgentExportPath(process.env.AGENT_DEBUG_BROWSER_CWD || process.cwd(), session.id),
+      copy.dialog
+    ));
+    if (result.canceled || !result.filePath) {
+      return { ok: false, canceled: true, session: getState() };
+    }
+
+    const format = exportFormatForPath(result.filePath);
+    const exportPayload = buildAgentExport(session.snapshot(), events, {
+      localizedName: options.productName || PRODUCT_NAME_EN
+    });
+    await fs.writeFile(result.filePath, serializeAgentExport(exportPayload, format), 'utf8');
+    await dialog.showMessageBox({
+      type: 'info',
+      buttons: [copy.saved.ok],
+      title: options.productName || PRODUCT_NAME_EN,
+      message: copy.saved.message,
+      detail: `${copy.saved.detailPrefix}${result.filePath}`
+    });
+
+    return {
+      ok: true,
+      filePath: result.filePath,
+      format,
+      eventCount: events.length,
+      session: getState()
+    };
+  }
+
+  function setPanelVisible(visible) {
+    panelVisible = Boolean(visible);
+    layout();
+    broadcastState();
+    return { ok: true, panelVisible, session: getState() };
+  }
+
   function localFileCopy() {
     if (options.productName === PRODUCT_NAME_ZH) {
       return {
@@ -343,6 +414,45 @@ function createWorkbench(session, options = {}) {
         ok: 'OK',
         message: 'Choose an HTML file',
         detail: 'Intent Browser can open .html, .htm, and .xhtml files.'
+      }
+    };
+  }
+
+  function agentExportCopy() {
+    if (options.productName === PRODUCT_NAME_ZH) {
+      return {
+        dialog: {
+          title: '导出给 AI',
+          jsonFiles: 'JSON 文件',
+          ndjsonFiles: 'NDJSON 文件'
+        },
+        empty: {
+          ok: '知道了',
+          message: '当前没有可导出的用户操作',
+          detail: '请先在快捷编辑或批注模式中完成一次编辑、拖拽或批注，再导出给 AI。'
+        },
+        saved: {
+          ok: '完成',
+          message: '已导出给 AI',
+          detailPrefix: '文件位置：'
+        }
+      };
+    }
+    return {
+      dialog: {
+        title: 'Export to AI',
+        jsonFiles: 'JSON Files',
+        ndjsonFiles: 'NDJSON Files'
+      },
+      empty: {
+        ok: 'OK',
+        message: 'No user operations to export',
+        detail: 'Make at least one quick edit, drag, or annotation before exporting for AI.'
+      },
+      saved: {
+        ok: 'Done',
+        message: 'Exported for AI',
+        detailPrefix: 'File: '
       }
     };
   }

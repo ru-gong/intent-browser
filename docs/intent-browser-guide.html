@@ -905,6 +905,8 @@
               <ul class="mode-list">
                 <li>页面正常点击、滚动、输入。</li>
                 <li>顶部“本地文件”按钮可直接选择 HTML 文件打开。</li>
+                <li>顶部“导出给 AI”可把当前 Diff 保存为 JSON 或 NDJSON。</li>
+                <li>右侧 Payload 面板可隐藏，给目标页面留出更多宽度。</li>
                 <li>overlay 隐藏，不劫持用户事件。</li>
                 <li>适合 Agent 生成后的第一眼检查。</li>
               </ul>
@@ -999,6 +1001,14 @@
               </div>
             </article>
             <article class="command-card">
+              <h3>用户导出</h3>
+              <p>如果不是由 Agent 启动，用户也可以在顶部点击“导出给 AI”，把已捕获事件保存成文件后交给 Agent。</p>
+              <div class="cmd">
+                <code>JSON: 会话快照 + 完整事件数组</code>
+                <code>NDJSON: 每行一个 Diff Payload</code>
+              </div>
+            </article>
+            <article class="command-card">
               <h3>切换模式</h3>
               <p>无需刷新目标页面，命令发出后主进程通过 IPC 通知 target preload。</p>
               <div class="cmd">
@@ -1086,6 +1096,8 @@
             <ul class="checklist" aria-label="测试验收清单">
               <li data-testid="check-mode">CLI 执行 <code>mode annotation</code> 后，工具栏高亮切到批注模式，侧栏状态同步更新。</li>
               <li data-testid="check-annotation">点击左侧标题并保存批注后，侧栏 Events 计数加一，CLI read 能读到同一事件。</li>
+              <li data-testid="check-export">顶部点击“导出给 AI”后，应保存包含当前事件的 JSON 或 NDJSON 文件。</li>
+              <li data-testid="check-panel">点击侧栏隐藏按钮后，目标页面区域应立即变宽；再点顶部“侧栏”可恢复。</li>
               <li data-testid="check-locator">payload 里应包含 data-testid、XPath、source ancestor 和 CDP backendNodeId。</li>
               <li data-testid="check-clean">退出模式不刷新页面，不丢失滚动位置，不破坏页面原始布局。</li>
             </ul>

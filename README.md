@@ -12,6 +12,7 @@ The goal is simple: when a human points at a page and says “change this”, th
 - **Quick Edit mode**: select elements, double-click text to edit it, replace image URLs, drag elements, and adjust common CSS values.
 - **Annotation mode**: click any element or region to pin a feedback bubble with spatial coordinates.
 - **Agent-ready payloads**: each event contains selectors, XPath, DOM path, source metadata, coordinates, and change details.
+- **One-click AI export**: even when the app was not launched by an agent, users can export JSON/NDJSON interaction files from the toolbar.
 - **CLI-first workflow**: agents can launch the GUI, switch modes, read events, or subscribe through WebSocket JSON-RPC.
 - **Clean security boundary**: target pages run with `nodeIntegration: false`, `contextIsolation: true`, and `sandbox: true`.
 
@@ -50,6 +51,10 @@ node bin/intent-browser.js docs/intent-browser-guide.html --port 17345 --out ./d
 ```
 
 After the window opens, use the **File** button in the toolbar to choose a local `.html`, `.htm`, or `.xhtml` file from your computer. The selected file is converted to a `file://` URL and loaded without typing the path manually.
+
+If the user did not launch the app from an AI program, they can still edit or annotate the page and click **Export to AI** in the top toolbar. The app saves an agent-readable JSON file; saving with a `.ndjson` extension exports one event per line for direct agent ingestion.
+
+The right Payload panel can be hidden or shown from its header or the top **Panel** button. Hiding it immediately gives the target page more room without refreshing.
 
 ## CLI
 
@@ -95,6 +100,8 @@ The RPC server defaults to `http://127.0.0.1:17345`.
 | WebSocket | `/rpc` | JSON-RPC 2.0: `events.list`, `session.get`, `mode.set`, `page.navigate` |
 
 See [docs/PROTOCOL.md](./docs/PROTOCOL.md) for payload examples.
+
+The desktop **Export to AI** button uses the same event structure. JSON exports include product metadata, the session snapshot, and the full event array; `.ndjson` exports write only event lines for stream-style agent consumption.
 
 ## Diff Payloads
 

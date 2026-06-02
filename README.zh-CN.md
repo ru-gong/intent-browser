@@ -12,6 +12,7 @@
 - **快捷编辑模式**：选中元素、双击改文本、替换图片链接、拖拽元素、调整常用 CSS 数值。
 - **批注插入模式**：点击任意元素或区域，钉上带空间坐标的反馈气泡。
 - **Agent 可读 Payload**：事件包含 CSS selector、XPath、DOM path、源码元数据、空间坐标和具体变更。
+- **一键导出给 AI**：即使不是由 AI 程序启动，用户也能在顶部工具栏导出 JSON/NDJSON 交互文件。
 - **CLI 优先工作流**：Agent 可以启动 GUI、切换模式、读取事件，也可以通过 WebSocket JSON-RPC 订阅。
 - **干净安全边界**：目标页面运行在 `nodeIntegration: false`、`contextIsolation: true`、`sandbox: true` 的环境里。
 
@@ -50,6 +51,10 @@ node bin/intent-browser.js docs/intent-browser-guide.html --port 17345 --out ./d
 ```
 
 窗口打开后，可以直接点击顶部工具栏的 **本地文件** 按钮，从本机选择 `.html`、`.htm` 或 `.xhtml` 文件。软件会自动把文件路径转换成 `file://` 地址并加载，不需要再手动输入本地路径。
+
+如果用户不是通过 AI 程序启动软件，也可以完成编辑或批注后点击顶部工具栏的 **导出给 AI**。软件会保存一个 Agent 可读的 JSON 文件；如果保存为 `.ndjson` 扩展名，则导出逐行事件，适合直接追加到 Agent 的事件消费流程。
+
+右侧 Payload 面板可以从面板标题区或顶部 **侧栏** 按钮隐藏/显示，隐藏后目标页面会立即扩展，不需要刷新。
 
 Windows PowerShell 示例：
 
@@ -101,6 +106,8 @@ RPC 服务默认地址是 `http://127.0.0.1:17345`。
 | WebSocket | `/rpc` | JSON-RPC 2.0：`events.list`、`session.get`、`mode.set`、`page.navigate` |
 
 Payload 示例见 [docs/PROTOCOL.md](./docs/PROTOCOL.md)。
+
+桌面端的 **导出给 AI** 使用同一套事件结构。JSON 文件会包含产品信息、会话快照和完整事件数组；`.ndjson` 文件只输出事件行，方便 Agent 直接流式读取。
 
 ## Diff Payload 设计
 

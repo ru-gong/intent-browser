@@ -14,6 +14,8 @@
     forward: '<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>',
     reload: '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"></path><path d="M21 3v6h-6"></path></svg>',
     file: '<svg viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7l-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"></path><path d="M8 13h8"></path></svg>',
+    export: '<svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="M7 8l5-5 5 5"></path><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path></svg>',
+    panel: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M15 4v16"></path><path d="M8 9h4"></path><path d="M8 13h4"></path></svg>',
     go: '<svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>',
     eye: '<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
     edit: '<svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path></svg>',
@@ -30,6 +32,8 @@
 
   function renderToolbar() {
     const target = state && state.target ? state.target : {};
+    const panelVisible = isPanelVisible();
+    const panelHelp = panelVisible ? copy.nav.hidePanelHelp : copy.nav.showPanelHelp;
     app.className = 'toolbar';
     app.innerHTML = `
       <div class="toolbar-left">
@@ -60,6 +64,12 @@
         </button>
       </form>
       <div class="toolbar-right">
+        <button class="export-button" data-action="export-ai" title="${escapeAttribute(copy.nav.exportAiHelp)}">
+          ${icons.export}<span>${escapeHtml(copy.nav.exportAi)}</span>
+        </button>
+        <button class="panel-toggle-button ${panelVisible ? 'is-visible' : ''}" data-action="toggle-panel" aria-pressed="${panelVisible ? 'true' : 'false'}" title="${escapeAttribute(panelHelp)}">
+          ${icons.panel}<span>${escapeHtml(copy.nav.panelToggle)}</span>
+        </button>
         <div class="modes" aria-label="${escapeAttribute(copy.modesLabel)}">
           ${modeButton('preview', icons.eye)}
           ${modeButton('quick-edit', icons.edit)}
@@ -76,6 +86,16 @@
     app.querySelector('[data-action="reload"]').addEventListener('click', () => api.reload());
     app.querySelector('[data-action="open-file"]').addEventListener('click', () => {
       api.openLocalFile().catch((error) => {
+        console.error(error);
+      });
+    });
+    app.querySelector('[data-action="export-ai"]').addEventListener('click', () => {
+      api.exportForAgent().catch((error) => {
+        console.error(error);
+      });
+    });
+    app.querySelector('[data-action="toggle-panel"]').addEventListener('click', () => {
+      api.setPanelVisible(!isPanelVisible()).catch((error) => {
         console.error(error);
       });
     });
@@ -112,7 +132,12 @@
             <h1>${escapeHtml(copy.panel.title)}</h1>
             <p>${escapeHtml(copy.panel.subtitle)}</p>
           </div>
-          <div class="status-pill">${escapeHtml(currentMode.label)}</div>
+          <div class="panel-title-actions">
+            <div class="status-pill">${escapeHtml(currentMode.label)}</div>
+            <button class="panel-hide-button" data-action="hide-panel" title="${escapeAttribute(copy.nav.hidePanelHelp)}">
+              ${icons.panel}<span>${escapeHtml(copy.nav.hidePanel)}</span>
+            </button>
+          </div>
         </div>
         <div class="state-grid">
           ${stat(copy.panel.session, state ? state.sessionId : '')}
@@ -136,6 +161,11 @@
         ${events.length ? events.map(renderEvent).join('') : `<div class="empty">${escapeHtml(copy.panel.empty)}</div>`}
       </section>
     `;
+    app.querySelector('[data-action="hide-panel"]').addEventListener('click', () => {
+      api.setPanelVisible(false).catch((error) => {
+        console.error(error);
+      });
+    });
   }
 
   function renderInstruction(item) {
@@ -181,6 +211,10 @@
     return `${last.latencyMs} ms`;
   }
 
+  function isPanelVisible() {
+    return !(state && state.ui && state.ui.panelVisible === false);
+  }
+
   function modeInfo(mode) {
     return copy.modes[mode] || copy.modes.preview;
   }
@@ -201,6 +235,12 @@
           reloadHelp: '重新加载当前目标页面',
           openFile: '本地文件',
           openFileHelp: '从本机选择 HTML 文件打开',
+          exportAi: '导出给 AI',
+          exportAiHelp: '把当前编辑、拖拽和批注导出成 AI 可读取的 JSON 文件',
+          panelToggle: '侧栏',
+          hidePanel: '隐藏',
+          hidePanelHelp: '隐藏右侧差异负载面板，给目标页面更多空间',
+          showPanelHelp: '显示右侧差异负载面板',
           go: '打开',
           goHelp: '加载地址栏中的 URL 或本地文件路径'
         },
@@ -261,6 +301,12 @@
         reloadHelp: 'Reload the current target page',
         openFile: 'File',
         openFileHelp: 'Choose a local HTML file from this computer',
+        exportAi: 'Export to AI',
+        exportAiHelp: 'Export current edits, drags, and annotations as an AI-readable JSON file',
+        panelToggle: 'Panel',
+        hidePanel: 'Hide',
+        hidePanelHelp: 'Hide the right diff payload panel and give the target page more room',
+        showPanelHelp: 'Show the right diff payload panel',
         go: 'Open',
         goHelp: 'Load the URL or local file path in the address bar'
       },

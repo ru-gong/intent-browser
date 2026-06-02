@@ -13,6 +13,28 @@ Base URL defaults to `http://127.0.0.1:17345`.
 | `POST` | `/mode` | Body: `{"mode":"preview|quick-edit|annotation"}`. |
 | `POST` | `/navigate` | Body: `{"url":"http://localhost:3000"}`. |
 
+## Desktop Export
+
+The top toolbar **Export to AI** action writes the current captured interactions to disk. Saving as `.json` produces a handoff envelope:
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "exportedAt": "2026-06-02T00:00:00.000Z",
+  "product": {
+    "name": "Intent Browser",
+    "localizedName": "Intent Browser",
+    "chineseName": "灵犀页镜"
+  },
+  "purpose": "agent-diff-handoff",
+  "session": { "...": "SessionSnapshot" },
+  "eventCount": 2,
+  "events": [{ "...": "DiffPayload" }]
+}
+```
+
+Saving as `.ndjson` writes only one `DiffPayload` per line, matching the CLI `--out` and `/events.ndjson` stream-style format.
+
 ## WebSocket JSON-RPC
 
 Connect to `ws://127.0.0.1:17345/rpc`.
