@@ -13,7 +13,7 @@ const { normalizeTargetUrl } = require('./cli');
 const { htmlOpenDialogOptions, isLocalHtmlFile } = require('./local-files');
 const { PRODUCT_NAME_EN, PRODUCT_NAME_ZH } = require('./product');
 
-const TOOLBAR_HEIGHT = 92;
+const TOOLBAR_HEIGHT = 64;
 const PANEL_WIDTH = 320;
 const TARGET_MARGIN = 12;
 const TARGET_PANEL_GAP = 12;
@@ -64,7 +64,7 @@ function createWorkbench(session, options = {}) {
       minWidth: 1024,
       minHeight: 720,
       title: options.productName || PRODUCT_NAME_EN,
-      backgroundColor: '#172334',
+      backgroundColor: '#111316',
       icon: getRuntimeIconPath()
     });
 

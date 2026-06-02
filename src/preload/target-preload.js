@@ -1004,15 +1004,41 @@ const { ipcRenderer } = require('electron');
     if (candidate && candidate !== document.documentElement && candidate !== document.body) {
       return candidate;
     }
-    let element = document.elementFromPoint(event.clientX, event.clientY);
+    let element = elementBelowOverlay(event.clientX, event.clientY);
     while (element && (element === host || host.contains(element))) {
       element = element.parentElement;
     }
     return element && element !== document.documentElement ? element : document.body;
   }
 
+  function elementBelowOverlay(x, y) {
+    let element = document.elementFromPoint(x, y);
+    if (!host || element !== host && !host.contains(element)) {
+      return element;
+    }
+    const previousDisplay = host.style.display;
+    host.style.display = 'none';
+    try {
+      element = document.elementFromPoint(x, y);
+    } finally {
+      host.style.display = previousDisplay;
+    }
+    return element;
+  }
+
   function isOverlayEvent(event) {
-    return Boolean(host && event.composedPath && event.composedPath().includes(host));
+    if (!host || !event.composedPath || !event.composedPath().includes(host)) {
+      return false;
+    }
+    const overlayElement = overlayElementFromPoint(event);
+    return Boolean(overlayElement && overlayElement.closest('.annotation, .pin, .popover, input, textarea, button'));
+  }
+
+  function overlayElementFromPoint(event) {
+    if (!root || !Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) {
+      return null;
+    }
+    return root.elementFromPoint(event.clientX, event.clientY);
   }
 
   function resolveEditableTarget(element) {

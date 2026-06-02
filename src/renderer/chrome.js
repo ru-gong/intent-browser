@@ -16,6 +16,7 @@
     file: '<svg viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7l-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"></path><path d="M8 13h8"></path></svg>',
     export: '<svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="M7 8l5-5 5 5"></path><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path></svg>',
     panel: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M15 4v16"></path><path d="M8 9h4"></path><path d="M8 13h4"></path></svg>',
+    panelClose: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M15 4v16"></path><path d="M11 9l-3 3 3 3"></path></svg>',
     go: '<svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>',
     eye: '<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
     edit: '<svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path></svg>',
@@ -44,37 +45,37 @@
             <span>${escapeHtml(copy.appCaption)}</span>
           </div>
         </div>
-        <button class="nav-button" data-action="back" title="${escapeAttribute(copy.nav.backHelp)}" ${target.canGoBack ? '' : 'disabled'}>
-          ${icons.back}<span>${escapeHtml(copy.nav.back)}</span>
+        <button class="nav-button" data-action="back" aria-label="${escapeAttribute(copy.nav.back)}" title="${escapeAttribute(copy.nav.backHelp)}" ${target.canGoBack ? '' : 'disabled'}>
+          ${icons.back}
         </button>
-        <button class="nav-button" data-action="forward" title="${escapeAttribute(copy.nav.forwardHelp)}" ${target.canGoForward ? '' : 'disabled'}>
-          ${icons.forward}<span>${escapeHtml(copy.nav.forward)}</span>
+        <button class="nav-button" data-action="forward" aria-label="${escapeAttribute(copy.nav.forward)}" title="${escapeAttribute(copy.nav.forwardHelp)}" ${target.canGoForward ? '' : 'disabled'}>
+          ${icons.forward}
         </button>
-        <button class="nav-button" data-action="reload" title="${escapeAttribute(copy.nav.reloadHelp)}">
-          ${icons.reload}<span>${escapeHtml(copy.nav.reload)}</span>
+        <button class="nav-button" data-action="reload" aria-label="${escapeAttribute(copy.nav.reload)}" title="${escapeAttribute(copy.nav.reloadHelp)}">
+          ${icons.reload}
         </button>
       </div>
       <form class="url-form" aria-label="${escapeAttribute(copy.url.aria)}">
         <input class="url-input" name="url" spellcheck="false" placeholder="${escapeAttribute(copy.url.placeholder)}" value="${escapeAttribute(state && state.url ? state.url : '')}">
-        <button class="file-button" type="button" data-action="open-file" title="${escapeAttribute(copy.nav.openFileHelp)}">
-          ${icons.file}<span>${escapeHtml(copy.nav.openFile)}</span>
-        </button>
         <button class="go-button" title="${escapeAttribute(copy.nav.goHelp)}">
-          ${icons.go}<span>${escapeHtml(copy.nav.go)}</span>
+          <span>${escapeHtml(copy.nav.go)}</span>
+        </button>
+        <button class="file-button" type="button" data-action="open-file" aria-label="${escapeAttribute(copy.nav.openFile)}" title="${escapeAttribute(copy.nav.openFileHelp)}">
+          ${icons.file}
         </button>
       </form>
       <div class="toolbar-right">
         <button class="export-button" data-action="export-ai" title="${escapeAttribute(copy.nav.exportAiHelp)}">
           ${icons.export}<span>${escapeHtml(copy.nav.exportAi)}</span>
         </button>
-        <button class="panel-toggle-button ${panelVisible ? 'is-visible' : ''}" data-action="toggle-panel" aria-pressed="${panelVisible ? 'true' : 'false'}" title="${escapeAttribute(panelHelp)}">
-          ${icons.panel}<span>${escapeHtml(copy.nav.panelToggle)}</span>
-        </button>
         <div class="modes" aria-label="${escapeAttribute(copy.modesLabel)}">
           ${modeButton('preview', icons.eye)}
           ${modeButton('quick-edit', icons.edit)}
           ${modeButton('annotation', icons.note)}
         </div>
+        <button class="panel-toggle-button ${panelVisible ? 'is-visible' : ''}" data-action="toggle-panel" aria-label="${escapeAttribute(copy.nav.panelToggle)}" aria-pressed="${panelVisible ? 'true' : 'false'}" title="${escapeAttribute(panelHelp)}">
+          ${panelVisible ? icons.panelClose : icons.panel}
+        </button>
         <div class="endpoint" title="${escapeAttribute(copy.panel.agentPortHelp)}">
           <span>${escapeHtml(copy.panel.agentPortShort)}</span>
           <strong>${escapeHtml(endpointText().replace(/^https?:\/\//, ''))}</strong>
@@ -127,6 +128,9 @@
     app.className = 'panel';
     app.innerHTML = `
       <section class="panel-header">
+        <button class="panel-edge-button" data-action="hide-panel" aria-label="${escapeAttribute(copy.nav.hidePanel)}" title="${escapeAttribute(copy.nav.hidePanelHelp)}">
+          ${icons.panelClose}
+        </button>
         <div class="panel-title">
           <div>
             <h1>${escapeHtml(copy.panel.title)}</h1>
@@ -134,9 +138,6 @@
           </div>
           <div class="panel-title-actions">
             <div class="status-pill">${escapeHtml(currentMode.label)}</div>
-            <button class="panel-hide-button" data-action="hide-panel" title="${escapeAttribute(copy.nav.hidePanelHelp)}">
-              ${icons.panel}<span>${escapeHtml(copy.nav.hidePanel)}</span>
-            </button>
           </div>
         </div>
         <div class="state-grid">
