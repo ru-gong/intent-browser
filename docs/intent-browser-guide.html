@@ -934,7 +934,7 @@
                 <span class="mode-index">03</span>
               </div>
               <div>
-                <h3>批注插入</h3>
+                <h3>插入批注</h3>
                 <p>用户在任意元素或区域打点，写下修改意见，形成空间锚定反馈。</p>
               </div>
               <ul class="mode-list">
@@ -1083,7 +1083,7 @@
         <section id="test-zone" class="band" data-component="InteractionTestZone" data-source-file="docs/intent-browser-guide.html" data-line="342">
           <div class="section-head">
             <h2>这块区域专门拿来测试交互。</h2>
-            <p>用项目浏览器打开本页后，切到 Quick Edit 可双击改标题；切到 Annotation 可点击标题或清单钉批注。右侧 payload 面板和 CLI 都应该同步出现事件。</p>
+            <p>用项目浏览器打开本页后，点击快捷编辑可双击改标题；点击插入批注可在标题或清单上钉批注。再次点击当前模式按钮会回到预览，右侧 payload 面板和 CLI 都应该同步出现事件。</p>
           </div>
 
           <div class="test-zone">
@@ -1094,7 +1094,7 @@
             </article>
 
             <ul class="checklist" aria-label="测试验收清单">
-              <li data-testid="check-mode">CLI 执行 <code>mode annotation</code> 后，工具栏高亮切到批注模式，侧栏状态同步更新。</li>
+              <li data-testid="check-mode">CLI 执行 <code>mode annotation</code> 后，工具栏高亮切到插入批注，侧栏状态同步更新。</li>
               <li data-testid="check-annotation">点击左侧标题并保存批注后，侧栏 Events 计数加一，CLI read 能读到同一事件。</li>
               <li data-testid="check-export">顶部点击“导出给 AI”后，应保存包含当前事件的 JSON 或 NDJSON 文件。</li>
               <li data-testid="check-panel">点击侧栏隐藏按钮后，目标页面区域应立即变宽；再点顶部“侧栏”可恢复。</li>

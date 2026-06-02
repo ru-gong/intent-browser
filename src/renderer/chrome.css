@@ -284,7 +284,7 @@ textarea:focus {
 }
 
 .mode {
-  width: 114px;
+  width: 150px;
   height: 42px;
   justify-content: flex-start;
   padding: 0 10px;
@@ -634,7 +634,7 @@ textarea:focus {
   }
 
   .mode {
-    width: 96px;
+    width: 150px;
   }
 
   .mode-copy small {

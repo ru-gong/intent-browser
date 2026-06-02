@@ -1189,7 +1189,7 @@ const { ipcRenderer } = require('electron');
       return {
         badge: {
           quickEdit: '快捷编辑：单击选中，双击文字/图片，拖拽元素调整布局',
-          annotation: '批注模式：点击任意组件或区域，钉上反馈气泡'
+          annotation: '插入批注：点击任意组件或区域，钉上反馈气泡'
         },
         popover: {
           imageSrc: '图片链接',
@@ -1210,7 +1210,7 @@ const { ipcRenderer } = require('electron');
     return {
       badge: {
         quickEdit: 'Quick Edit: click to select, double-click text/images, drag elements',
-        annotation: 'Annotation: click any element or area to pin feedback'
+        annotation: 'Insert Annotation: click any element or area to pin feedback'
       },
       popover: {
         imageSrc: 'image src',

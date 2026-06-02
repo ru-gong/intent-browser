@@ -18,6 +18,7 @@ async function main() {
 
   try {
     await setMode(appPort, 'quick-edit');
+    await waitForTargetMode(cdp, 'quick-edit');
     await cdp.call('Runtime.evaluate', {
       awaitPromise: true,
       expression: `
@@ -35,12 +36,14 @@ async function main() {
     await waitForAction(appPort, 'text.replace');
 
     await setMode(appPort, 'annotation');
+    await waitForTargetMode(cdp, 'annotation');
+    await delay(120);
     const annotationPoint = await cdp.call('Runtime.evaluate', {
       awaitPromise: true,
       returnByValue: true,
       expression: `
         (() => {
-          const el = document.querySelector('[data-testid="metric-switch"]');
+          const el = document.querySelector('[data-testid="guide-lead"]');
           const rect = el.getBoundingClientRect();
           return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
         })()
@@ -120,6 +123,21 @@ async function waitForAction(port, action) {
     await delay(80);
   }
   throw new Error(`Timed out waiting for ${action}`);
+}
+
+async function waitForTargetMode(cdp, mode) {
+  const deadline = Date.now() + 3000;
+  while (Date.now() < deadline) {
+    const result = await cdp.call('Runtime.evaluate', {
+      returnByValue: true,
+      expression: 'document.documentElement.getAttribute("data-intent-browser-mode")'
+    });
+    if (result.result.value === mode) {
+      return;
+    }
+    await delay(40);
+  }
+  throw new Error(`Timed out waiting for target mode ${mode}`);
 }
 
 async function findTarget(port, urlPart) {

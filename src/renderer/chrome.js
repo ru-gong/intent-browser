@@ -69,7 +69,6 @@
           ${icons.export}<span>${escapeHtml(copy.nav.exportAi)}</span>
         </button>
         <div class="modes" aria-label="${escapeAttribute(copy.modesLabel)}">
-          ${modeButton('preview', icons.eye)}
           ${modeButton('quick-edit', icons.edit)}
           ${modeButton('annotation', icons.note)}
         </div>
@@ -101,7 +100,9 @@
       });
     });
     app.querySelectorAll('[data-mode]').forEach((button) => {
-      button.addEventListener('click', () => api.setMode(button.dataset.mode));
+      button.addEventListener('click', () => {
+        api.setMode(nextModeForToggle(button.dataset.mode));
+      });
     });
     app.querySelector('.url-form').addEventListener('submit', (event) => {
       event.preventDefault();
@@ -113,7 +114,7 @@
     const active = state && state.mode === mode ? ' active' : '';
     const modeCopy = modeInfo(mode);
     return `
-      <button class="mode${active}" data-mode="${mode}" title="${escapeAttribute(`${modeCopy.label}: ${modeCopy.help}`)}">
+      <button class="mode${active}" data-mode="${mode}" aria-pressed="${active ? 'true' : 'false'}" title="${escapeAttribute(`${modeCopy.label}: ${modeCopy.help}`)}">
         <span class="mode-icon">${icon}</span>
         <span class="mode-copy">
           <strong>${escapeHtml(modeCopy.label)}</strong>
@@ -216,6 +217,10 @@
     return !(state && state.ui && state.ui.panelVisible === false);
   }
 
+  function nextModeForToggle(mode) {
+    return state && state.mode === mode ? 'preview' : mode;
+  }
+
   function modeInfo(mode) {
     return copy.modes[mode] || copy.modes.preview;
   }
@@ -256,11 +261,11 @@
           },
           'quick-edit': {
             label: '快捷编辑',
-            help: '选中、双击修改、拖拽布局'
+            help: '点击进入，再次点击退出'
           },
           annotation: {
-            label: '批注',
-            help: '点击任意区域钉反馈气泡'
+            label: '插入批注',
+            help: '点击进入，再次点击退出'
           }
         },
         panel: {
@@ -273,14 +278,14 @@
           agentPortHelp: 'Agent 通过这个本地接口读取用户操作、切换模式和获取差异负载。',
           latency: '切换延迟',
           agentPortStarting: '通信接口启动中',
-          empty: '还没有捕获到用户 Diff。切到快捷编辑或批注模式后在页面上操作。',
+          empty: '还没有捕获到用户 Diff。点击快捷编辑或插入批注后在页面上操作。',
           unknownTarget: '未知目标'
         },
         instructions: {
           title: '操作说明',
           subtitle: '用户操作会立刻变成右侧的 payload',
           items: [
-            { mark: '1', tone: 'cyan', title: '选择模式', body: '顶部三个大按钮可瞬时切换预览、快捷编辑、批注，不刷新页面。' },
+            { mark: '1', tone: 'cyan', title: '选择模式', body: '顶部快捷编辑和插入批注是开关按钮；再次点击当前按钮会回到预览。' },
             { mark: '2', tone: 'green', title: '快捷编辑', body: '单击选中组件；双击文字或图片可改内容；拖拽组件会记录 transform 差异。' },
             { mark: '3', tone: 'amber', title: '批注反馈', body: '点击页面任意区域，输入修改意见，按提交或 Ctrl/⌘+Enter 固定批注。' },
             { mark: '4', tone: 'blue', title: 'Agent 读取', body: '右侧事件流与 CLI/本地接口保持同步，Agent 可读取 DOM 路径、坐标和变更内容。' }
@@ -322,11 +327,11 @@
         },
         'quick-edit': {
           label: 'Quick Edit',
-          help: 'Select, double-click edit, drag layout'
+          help: 'Click to enter, click again to exit'
         },
         annotation: {
-          label: 'Annotation',
-          help: 'Click anywhere to pin feedback'
+          label: 'Insert Annotation',
+          help: 'Click to enter, click again to exit'
         }
       },
       panel: {
@@ -339,14 +344,14 @@
         agentPortHelp: 'The agent uses this local API to read interactions, switch modes, and fetch diff payloads.',
         latency: 'Latency',
         agentPortStarting: 'API starting',
-        empty: 'No user diffs captured yet. Switch to Quick Edit or Annotation and interact with the page.',
+        empty: 'No user diffs captured yet. Click Quick Edit or Insert Annotation and interact with the page.',
         unknownTarget: 'Unknown target'
       },
       instructions: {
         title: 'How To Use',
         subtitle: 'Every user operation becomes a live payload here',
         items: [
-          { mark: '1', tone: 'cyan', title: 'Choose a mode', body: 'Use the three large top buttons to switch Preview, Quick Edit, and Annotation without refreshing.' },
+          { mark: '1', tone: 'cyan', title: 'Choose a mode', body: 'Quick Edit and Insert Annotation are toggle buttons; click the active one again to return to Preview.' },
           { mark: '2', tone: 'green', title: 'Quick edit', body: 'Click to select; double-click text or images to change content; drag elements to record transform diffs.' },
           { mark: '3', tone: 'amber', title: 'Pin feedback', body: 'Click any page region, type feedback, then submit or press Ctrl/⌘+Enter to save the note.' },
           { mark: '4', tone: 'blue', title: 'Agent reads', body: 'The event stream mirrors CLI/API output with DOM paths, coordinates, and concrete changes.' }
