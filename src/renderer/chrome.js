@@ -38,49 +38,51 @@
     app.className = 'toolbar';
     app.innerHTML = `
       <div class="toolbar-left">
-        <div class="brand-block" title="${escapeAttribute(copy.appName)}">
+        <div class="brand-block" data-tooltip="${escapeAttribute(copy.brandHelp)}">
           <div class="brand">${icons.brand}</div>
           <div class="brand-copy">
             <strong>${escapeHtml(copy.appName)}</strong>
             <span>${escapeHtml(copy.appCaption)}</span>
           </div>
         </div>
-        <button class="nav-button" data-action="back" aria-label="${escapeAttribute(copy.nav.back)}" title="${escapeAttribute(copy.nav.backHelp)}" ${target.canGoBack ? '' : 'disabled'}>
+        <button class="nav-button" data-action="back" aria-label="${escapeAttribute(copy.nav.back)}" data-tooltip="${escapeAttribute(toolbarTooltip(copy.nav.back, copy.nav.backHelp))}" ${target.canGoBack ? '' : 'disabled'}>
           ${icons.back}
         </button>
-        <button class="nav-button" data-action="forward" aria-label="${escapeAttribute(copy.nav.forward)}" title="${escapeAttribute(copy.nav.forwardHelp)}" ${target.canGoForward ? '' : 'disabled'}>
+        <button class="nav-button" data-action="forward" aria-label="${escapeAttribute(copy.nav.forward)}" data-tooltip="${escapeAttribute(toolbarTooltip(copy.nav.forward, copy.nav.forwardHelp))}" ${target.canGoForward ? '' : 'disabled'}>
           ${icons.forward}
         </button>
-        <button class="nav-button" data-action="reload" aria-label="${escapeAttribute(copy.nav.reload)}" title="${escapeAttribute(copy.nav.reloadHelp)}">
+        <button class="nav-button" data-action="reload" aria-label="${escapeAttribute(copy.nav.reload)}" data-tooltip="${escapeAttribute(toolbarTooltip(copy.nav.reload, copy.nav.reloadHelp))}">
           ${icons.reload}
         </button>
       </div>
       <form class="url-form" aria-label="${escapeAttribute(copy.url.aria)}">
         <input class="url-input" name="url" spellcheck="false" placeholder="${escapeAttribute(copy.url.placeholder)}" value="${escapeAttribute(state && state.url ? state.url : '')}">
-        <button class="go-button" title="${escapeAttribute(copy.nav.goHelp)}">
+        <button class="go-button" aria-label="${escapeAttribute(copy.nav.go)}" data-tooltip="${escapeAttribute(toolbarTooltip(copy.nav.go, copy.nav.goHelp))}">
           <span>${escapeHtml(copy.nav.go)}</span>
         </button>
-        <button class="file-button" type="button" data-action="open-file" aria-label="${escapeAttribute(copy.nav.openFile)}" title="${escapeAttribute(copy.nav.openFileHelp)}">
+        <button class="file-button" type="button" data-action="open-file" aria-label="${escapeAttribute(copy.nav.openFile)}" data-tooltip="${escapeAttribute(toolbarTooltip(copy.nav.openFile, copy.nav.openFileHelp))}">
           ${icons.file}
         </button>
       </form>
       <div class="toolbar-right">
-        <button class="export-button" data-action="export-ai" title="${escapeAttribute(copy.nav.exportAiHelp)}">
+        <button class="export-button" data-action="export-ai" aria-label="${escapeAttribute(copy.nav.exportAi)}" data-tooltip="${escapeAttribute(toolbarTooltip(copy.nav.exportAi, copy.nav.exportAiHelp))}">
           ${icons.export}<span>${escapeHtml(copy.nav.exportAi)}</span>
         </button>
         <div class="modes" aria-label="${escapeAttribute(copy.modesLabel)}">
           ${modeButton('quick-edit', icons.edit)}
           ${modeButton('annotation', icons.note)}
         </div>
-        <button class="panel-toggle-button ${panelVisible ? 'is-visible' : ''}" data-action="toggle-panel" aria-label="${escapeAttribute(copy.nav.panelToggle)}" aria-pressed="${panelVisible ? 'true' : 'false'}" title="${escapeAttribute(panelHelp)}">
+        <button class="panel-toggle-button ${panelVisible ? 'is-visible' : ''}" data-action="toggle-panel" aria-label="${escapeAttribute(copy.nav.panelToggle)}" aria-pressed="${panelVisible ? 'true' : 'false'}" data-tooltip="${escapeAttribute(toolbarTooltip(copy.nav.panelToggle, panelHelp))}">
           ${panelVisible ? icons.panelClose : icons.panel}
         </button>
-        <div class="endpoint" title="${escapeAttribute(copy.panel.agentPortHelp)}">
+        <div class="endpoint" data-tooltip="${escapeAttribute(copy.panel.agentPortHelp)}">
           <span>${escapeHtml(copy.panel.agentPortShort)}</span>
           <strong>${escapeHtml(endpointText().replace(/^https?:\/\//, ''))}</strong>
         </div>
       </div>
+      <div class="toolbar-tooltip" role="tooltip" hidden></div>
     `;
+    setupToolbarTooltips();
     app.querySelector('[data-action="back"]').addEventListener('click', () => api.back());
     app.querySelector('[data-action="forward"]').addEventListener('click', () => api.forward());
     app.querySelector('[data-action="reload"]').addEventListener('click', () => api.reload());
@@ -114,7 +116,7 @@
     const active = state && state.mode === mode ? ' active' : '';
     const modeCopy = modeInfo(mode);
     return `
-      <button class="mode${active}" data-mode="${mode}" aria-pressed="${active ? 'true' : 'false'}" title="${escapeAttribute(`${modeCopy.label}: ${modeCopy.help}`)}">
+      <button class="mode${active}" data-mode="${mode}" aria-label="${escapeAttribute(modeCopy.label)}" aria-pressed="${active ? 'true' : 'false'}" data-tooltip="${escapeAttribute(toolbarTooltip(modeCopy.label, modeCopy.help))}">
         <span class="mode-icon">${icon}</span>
         <span class="mode-copy">
           <strong>${escapeHtml(modeCopy.label)}</strong>
@@ -221,6 +223,75 @@
     return state && state.mode === mode ? 'preview' : mode;
   }
 
+  function toolbarTooltip(label, help) {
+    return `${label}${copy.tooltipSeparator}${help}`;
+  }
+
+  function setupToolbarTooltips() {
+    const tooltip = app.querySelector('.toolbar-tooltip');
+    const triggers = Array.from(app.querySelectorAll('[data-tooltip]'));
+    if (!tooltip || !triggers.length) {
+      return;
+    }
+
+    let activeTrigger = null;
+    let hideTimer = 0;
+    const show = (trigger) => {
+      const text = trigger.getAttribute('data-tooltip');
+      if (!text) {
+        return;
+      }
+      activeTrigger = trigger;
+      clearTimeout(hideTimer);
+      tooltip.textContent = text;
+      tooltip.hidden = false;
+      tooltip.classList.remove('is-visible');
+      window.requestAnimationFrame(() => {
+        if (activeTrigger !== trigger) {
+          return;
+        }
+        positionToolbarTooltip(trigger, tooltip);
+        tooltip.classList.add('is-visible');
+      });
+    };
+    const hide = (trigger) => {
+      if (trigger && activeTrigger !== trigger) {
+        return;
+      }
+      activeTrigger = null;
+      tooltip.classList.remove('is-visible');
+      clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(() => {
+        if (!activeTrigger) {
+          tooltip.hidden = true;
+        }
+      }, 120);
+    };
+
+    for (const trigger of triggers) {
+      trigger.addEventListener('mouseenter', () => show(trigger));
+      trigger.addEventListener('mouseleave', () => hide(trigger));
+      trigger.addEventListener('focus', () => show(trigger));
+      trigger.addEventListener('blur', () => hide(trigger));
+    }
+  }
+
+  function positionToolbarTooltip(trigger, tooltip) {
+    const toolbarRect = app.getBoundingClientRect();
+    const triggerRect = trigger.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const margin = 8;
+    const centerX = triggerRect.left - toolbarRect.left + triggerRect.width / 2;
+    const minLeft = tooltipRect.width / 2 + margin;
+    const maxLeft = toolbarRect.width - tooltipRect.width / 2 - margin;
+    const left = clamp(centerX, minLeft, Math.max(minLeft, maxLeft));
+    const preferredTop = triggerRect.bottom - toolbarRect.top + 6;
+    const maxTop = toolbarRect.height - tooltipRect.height - 4;
+    const top = clamp(preferredTop, 4, Math.max(4, maxTop));
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }
+
   function modeInfo(mode) {
     return copy.modes[mode] || copy.modes.preview;
   }
@@ -231,6 +302,8 @@
         chromeTitle: '灵犀页镜',
         appName: '灵犀页镜',
         appCaption: '页面编辑与 Diff 采集',
+        brandHelp: '灵犀页镜：用于打开目标页面、切换调试模式并收集 Diff Payload',
+        tooltipSeparator: '：',
         modesLabel: '遮罩模式',
         nav: {
           back: '返回',
@@ -297,6 +370,8 @@
       chromeTitle: 'Intent Browser',
       appName: 'Intent Browser',
       appCaption: 'Page editing and diff capture',
+      brandHelp: 'Intent Browser: open target pages, switch debug modes, and capture Diff Payloads',
+      tooltipSeparator: ': ',
       modesLabel: 'Overlay modes',
       nav: {
         back: 'Back',
@@ -366,6 +441,10 @@
       ...Array.from(navigator.languages || [])
     ].filter(Boolean);
     return languages.some((value) => String(value).toLowerCase().startsWith('zh'));
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
   }
 
   function escapeHtml(value) {
