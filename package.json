@@ -1,6 +1,6 @@
 {
   "name": "intent-browser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A dedicated Electron browser for intent-aware page debugging, quick editing, annotations, and diff payload capture.",
   "main": "src/main/main.js",
   "bin": {
