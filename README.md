@@ -56,6 +56,35 @@ If the user did not launch the app from an AI program, they can still edit or an
 
 The right Payload panel can be hidden or shown from its header or the top **Panel** button. Hiding it immediately gives the target page more room without refreshing.
 
+## Agent Skill Install
+
+The repository includes a bundled `skills/intent-browser` Skill package so AI agents can quickly discover how to use Intent Browser, when to trigger it, what it can do, and how to interact with the human user.
+
+From the repository root:
+
+```bash
+npm run install:skill
+```
+
+Default destination:
+
+- `$CODEX_HOME/skills/intent-browser` when `CODEX_HOME` is set.
+- `~/.codex/skills/intent-browser` otherwise.
+
+Install into another compatible skills root:
+
+```bash
+node scripts/install-skill.js --target ~/.agents/skills
+```
+
+Install into an exact destination:
+
+```bash
+node scripts/install-skill.js --dest /path/to/agent/skills/intent-browser
+```
+
+Restart or reload the agent after installation so it can discover `$intent-browser`. Agents with UI metadata support can also read `skills/intent-browser/agents/openai.yaml`.
+
 ## CLI
 
 Show all commands:

@@ -9,6 +9,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . -- --url samples/demo.html --devtools",
+    "install:skill": "node scripts/install-skill.js",
     "test": "node --test",
     "test:unit": "node --test test/*.test.js",
     "smoke:interactions": "node scripts/smoke-interactions.js"

@@ -62,6 +62,35 @@ Windows PowerShell 示例：
 node .\bin\intent-browser.js .\docs\intent-browser-guide.html --port 17345 --out .\diffs.ndjson
 ```
 
+## Agent Skill 安装
+
+仓库内置了 `skills/intent-browser` Skill 包，方便 AI Agent 从源码中快速识别灵犀页镜的用法、触发条件、能力边界和用户交互流程。
+
+在仓库根目录执行：
+
+```bash
+npm run install:skill
+```
+
+默认安装位置：
+
+- 如果设置了 `CODEX_HOME`，复制到 `$CODEX_HOME/skills/intent-browser`。
+- 否则复制到 `~/.codex/skills/intent-browser`。
+
+安装给其他兼容 Skill 目录：
+
+```bash
+node scripts/install-skill.js --target ~/.agents/skills
+```
+
+指定完整目标目录：
+
+```bash
+node scripts/install-skill.js --dest /path/to/agent/skills/intent-browser
+```
+
+安装后重启或刷新 Agent，即可让 Agent 识别 `$intent-browser`。支持 UI 元数据的 Agent 也可以读取 `skills/intent-browser/agents/openai.yaml`。
+
 ## CLI 用法
 
 查看全部命令：

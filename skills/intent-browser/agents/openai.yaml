@@ -1,0 +1,7 @@
+interface:
+  display_name: "Intent Browser"
+  short_description: "Collect page edits and annotations for agents"
+  brand_color: "#81C995"
+  default_prompt: "Use $intent-browser to open a page, collect user quick edits or annotations, and turn Diff Payloads into source-code changes."
+policy:
+  allow_implicit_invocation: true
